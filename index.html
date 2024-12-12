@@ -105,31 +105,7 @@
         });
     });
 
-    // Check User Authentication State
-    onAuthStateChanged(auth, (user) => {
-      const currentPath = window.location.pathname;
-
-      if (user) {
-        // User is authenticated
-        console.log("User authenticated:", user);
-
-        // Simulate owner validation
-        const isOwner = user.email === "equillyptian@gmail.com";
-
-        if (isOwner) {
-          // Show owner features if needed
-          const ownerFeatures = document.getElementById("owner-features");
-          if (ownerFeatures) ownerFeatures.style.display = "block";
-        } else {
-          if (currentPath.includes("owner-page.html")) {
-            // Redirect if non-owner user tries to access owner page
-            alert("You are not authorized to access this page.");
-            window.location.href = "menu.html";
-          }
-        }
-      }
-      }
-    });
+    
   </script>
 </body>
 </html>
