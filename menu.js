@@ -62,6 +62,9 @@
         const app = firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
 
+        // Flag untuk menghindari pemeriksaan ulang terlalu sering
+        var isCheckingAuth = false;
+
         // Fungsi untuk memeriksa apakah pengguna adalah pemilik
         function checkOwnerStatus(user) {
             return user && user.email === "equillyptian@gmail.com"; // Ganti dengan email pemilik yang benar
@@ -70,12 +73,20 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Memeriksa status pengguna dari Firebase
             firebase.auth().onAuthStateChanged((user) => {
+                // Jika sedang dalam proses pemeriksaan, hentikan pemeriksaan
+                if (isCheckingAuth) return;
+
+                isCheckingAuth = true; // Set flag agar tidak memeriksa lebih dari sekali
+
                 const ownerFeatures = document.getElementById('owner-features');
                 if (checkOwnerStatus(user)) {
                     ownerFeatures.style.display = 'block';
                 } else {
                     ownerFeatures.style.display = 'none';
                 }
+
+                // Reset flag setelah pemeriksaan selesai
+                isCheckingAuth = false;
             });
         });
     </script>
