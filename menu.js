@@ -45,22 +45,27 @@
         </div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js"></script>
-    <script type="module">
-        // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyA9lmHvPKxwcgU0UUAEzxIr5jJzQma_yEo",
-            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-            projectId: "eqjawa-cihuy",
-            storageBucket: "YOUR_PROJECT_ID.appspot.com",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "1:881496252840:web:dc88ca17028a6bf7093d9d",
-        };
+    // Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
 
-        // Initialize Firebase
-        const app = firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyA9lmHvPKxwcgU0UUAEzxIr5jJzQma_yEo",
+  authDomain: "eqjawa-cihuy.firebaseapp.com",
+  projectId: "eqjawa-cihuy",
+  storageBucket: "eqjawa-cihuy.firebasestorage.app",
+  messagingSenderId: "881496252840",
+  appId: "1:881496252840:web:dc88ca17028a6bf7093d9d",
+  measurementId: "G-6BT98ZZ433"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
 
         // Flag untuk menghindari pemeriksaan ulang terlalu sering
         var isCheckingAuth = false;
