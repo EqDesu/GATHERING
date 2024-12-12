@@ -1,4 +1,3 @@
-// Firebase imports
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
 
@@ -48,8 +47,6 @@ document.getElementById("login-form")?.addEventListener("submit", (e) => {
 
 // Check User Authentication State
 onAuthStateChanged(auth, (user) => {
-  const currentPath = window.location.pathname;
-
   if (user) {
     // User sudah login
     console.log("User authenticated:", user);
@@ -62,6 +59,7 @@ onAuthStateChanged(auth, (user) => {
       const ownerFeatures = document.getElementById("owner-features");
       if (ownerFeatures) ownerFeatures.style.display = "block";
     } else {
+      const currentPath = window.location.pathname;
       if (currentPath.includes("owner-page.html")) {
         // Redirect jika user non-owner mencoba mengakses halaman owner
         alert("You are not authorized to access this page.");
@@ -71,6 +69,7 @@ onAuthStateChanged(auth, (user) => {
   } else {
     // User belum login
     console.log("No user authenticated");
+    const currentPath = window.location.pathname;
     if (currentPath !== "/index.html") {
       alert("Please login to access this page.");
       window.location.href = "index.html"; // Redirect ke halaman login
