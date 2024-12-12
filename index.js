@@ -52,16 +52,16 @@ onAuthStateChanged(auth, (user) => {
     console.log("User authenticated:", user);
 
     // Simulasi validasi owner
-    const isOwner = user.email === "owner@example.com";
+    const isOwner = user.email === "equillyptian@gmail.com";
 
     if (isOwner) {
       // Tampilkan fitur owner jika diperlukan
       const ownerFeatures = document.getElementById("owner-features");
       if (ownerFeatures) ownerFeatures.style.display = "block";
     } else {
+      // Jika bukan pemilik dan mencoba mengakses halaman owner
       const currentPath = window.location.pathname;
       if (currentPath.includes("owner-page.html")) {
-        // Redirect jika user non-owner mencoba mengakses halaman owner
         alert("You are not authorized to access this page.");
         window.location.href = "menu.html";
       }
