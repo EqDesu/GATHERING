@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gathering Zone</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            background-color: #007bff;
+            color: #fff;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .feature-container {
+            display: flex;
+            justify-content: space-around;
+            padding: 20px;
+        }
+
+        .feature-box {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 25%;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+
+        .feature-box:hover {
+            transform: translateY(-10px);
+        }
+
+        .feature-box h2 {
+            color: #007bff;
+        }
+
+        .feature-box p {
+            color: #555;
+        }
+
+        .feature-box a {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 8px 16px;
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+
+        .feature-box a:hover {
+            background-color: #0056b3;
+        }
+
+        #owner-features {
+            display: none;
+            padding: 20px;
+        }
+
+        #owner-features .feature-box {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <h1>SELAMAT DATANG DI GATHERING ZONE</h1>
+    </header>
+
+    <!-- Kotak Fitur -->
+    <div class="feature-container">
+        <div class="feature-box">
+            <h2>Pengaturan</h2>
+            <p>Atur preferensi dan profil Anda di sini.</p>
+            <a href="/pengaturan">Akses Pengaturan</a>
+        </div>
+        <div class="feature-box">
+            <h2>Laporan</h2>
+            <p>Akses laporan harian atau bulanan Anda.</p>
+            <a href="/laporan">Lihat Laporan</a>
+        </div>
+        <div class="feature-box">
+            <h2>Keluar</h2>
+            <p>Terima kasih sudah menggunakan Gathering Zone. Sampai jumpa!</p>
+            <a href="index.html">Keluar</a>
+        </div>
+    </div>
+
+    <!-- Fitur Khusus Owner -->
+    <div id="owner-features">
+        <div class="feature-box">
+            <h2>Kelola Karyawan</h2>
+            <p>Tambah, edit, atau hapus data karyawan Anda.</p>
+            <a href="/kelola-karyawan">Akses Kelola Karyawan</a>
+        </div>
+        <div class="feature-box">
+            <h2>Kelola Produk</h2>
+            <p>Tambah, edit, atau hapus produk Anda.</p>
+            <a href="/kelola-produk">Akses Kelola Produk</a>
+        </div>
+    </div>
+</body>
+</html>

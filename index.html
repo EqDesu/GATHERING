@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login Gathering Zone</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      background: #f3f4f6;
+    }
+    .container {
+      width: 300px;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    h2 { text-align: center; margin-bottom: 20px; }
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    .register-link {
+      text-align: center;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="auth-container">
+    <h2>LOGIN GATHERING ZONE</h2>
+    <form id="login-form">
+      <input type="email" id="login-email" placeholder="Email" required>
+      <input type="password" id="login-password" placeholder="Password" required>
+      <button type="submit">Login</button>
+    </form>
+    <div class="register-link">
+      <a href="register.html">Don't have an account? Register here.</a>
+    </div>
+  </div>
+
+  <script type="module">
+    // Firebase imports
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyA9lmHvPKxwcgU0UUAEzxIr5jJzQma_yEo",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      projectId: "eqjawa-cihuy",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+      appId: "1:881496252840:web:dc88ca17028a6bf7093d9d",
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // Handle Login
+    document.getElementById("login-form")?.addEventListener("submit", (e) => {
+      e.preventDefault(); // Prevent page refresh
+
+      // Get email and password inputs
+      const email = document.getElementById("login-email").value;
+      const password = document.getElementById("login-password").value;
+
+      // Process login with Firebase Authentication
+      signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          const user = userCredential.user;
+
+          // Simulate owner validation
+          const isOwner = user.email === "equillyptian@gmail.com"; // Replace with your own logic
+
+          if (isOwner) {
+            alert("Login successful as Owner!");
+            window.location.href = "menu.html"; // Redirect to Owner page
+          } else {
+            alert("Login successful, but you do not have owner access.");
+            window.location.href = "menu.html"; // Redirect to general menu
+          }
+        })
+        .catch((error) => {
+          console.error("Login error:", error);
+          alert("Login failed: " + error.message);
+        });
+    });
+
+    // Check User Authentication State
+    onAuthStateChanged(auth, (user) => {
+      const currentPath = window.location.pathname;
+
+      if (user) {
+        // User is authenticated
+        console.log("User authenticated:", user);
+
+        // Simulate owner validation
+        const isOwner = user.email === "equillyptian@gmail.com";
+
+        if (isOwner) {
+          // Show owner features if needed
+          const ownerFeatures = document.getElementById("owner-features");
+          if (ownerFeatures) ownerFeatures.style.display = "block";
+        } else {
+          if (currentPath.includes("owner-page.html")) {
+            // Redirect if non-owner user tries to access owner page
+            alert("You are not authorized to access this page.");
+            window.location.href = "menu.html";
+          }
+        }
+      } else {
+        // User is not authenticated
+        console.log("No user authenticated");
+        if (currentPath !== "/index.html") {
+          alert("Please login to access this page.");
+          window.location.href = "index.html"; // Redirect to login page
+        }
+      }
+    });
+  </script>
+</body>
+</html>
