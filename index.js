@@ -66,13 +66,4 @@ onAuthStateChanged(auth, (user) => {
         window.location.href = "menu.html";
       }
     }
-  } else {
-    // User belum login
-    console.log("No user authenticated");
-    const currentPath = window.location.pathname;
-    if (currentPath !== "/index.html") {
-      alert("Please login to access this page.");
-      window.location.href = "index.html"; // Redirect ke halaman login
-    }
-  }
-});
+  } 
