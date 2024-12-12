@@ -1,19 +1,24 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
 
-// Firebase configuration
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyA9lmHvPKxwcgU0UUAEzxIr5jJzQma_yEo",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  authDomain: "eqjawa-cihuy.firebaseapp.com",
   projectId: "eqjawa-cihuy",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+  storageBucket: "eqjawa-cihuy.firebasestorage.app",
+  messagingSenderId: "881496252840",
   appId: "1:881496252840:web:dc88ca17028a6bf7093d9d",
+  measurementId: "G-6BT98ZZ433"
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+const analytics = getAnalytics(app);
 
 // Handle Login
 document.getElementById("login-form")?.addEventListener("submit", (e) => {
