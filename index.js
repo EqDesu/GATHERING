@@ -13,7 +13,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyA9lmHvPKxwcgU0UUAEzxIr5jJzQma_yEo",
   authDomain: "eqjawa-cihuy.firebaseapp.com",
   projectId: "eqjawa-cihuy",
-  storageBucket: "eqjawa-cihuy.firebasestorage.app",
+  storageBucket: "eqjawa-cihuy.appspot.com", // Update with the correct storage bucket
   messagingSenderId: "881496252840",
   appId: "1:881496252840:web:dc88ca17028a6bf7093d9d",
   measurementId: "G-6BT98ZZ433",
@@ -41,7 +41,7 @@ document.getElementById("register-form")?.addEventListener("submit", (e) => {
       window.location.href = "index.html"; // Redirect ke halaman login
     })
     .catch((error) => {
-      console.error("Registration error:", error);
+      console.error("Registration error:", error.message);
       alert("Registration failed: " + error.message);
     });
 });
@@ -71,7 +71,7 @@ document.getElementById("login-form")?.addEventListener("submit", (e) => {
       }
     })
     .catch((error) => {
-      console.error("Login error:", error);
+      console.error("Login error:", error.message);
       alert("Login failed: " + error.message);
     });
 });
