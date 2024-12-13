@@ -1,11 +1,14 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  onAuthStateChanged,
+} from "firebase/auth";
 
 // Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyA9lmHvPKxwcgU0UUAEzxIr5jJzQma_yEo",
   authDomain: "eqjawa-cihuy.firebaseapp.com",
@@ -13,12 +16,35 @@ const firebaseConfig = {
   storageBucket: "eqjawa-cihuy.firebasestorage.app",
   messagingSenderId: "881496252840",
   appId: "1:881496252840:web:dc88ca17028a6bf7093d9d",
-  measurementId: "G-6BT98ZZ433"
+  measurementId: "G-6BT98ZZ433",
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
+const auth = getAuth(app);
+
+// Handle Register
+document.getElementById("register-form")?.addEventListener("submit", (e) => {
+  e.preventDefault(); // Mencegah refresh halaman
+
+  // Ambil input email dan password
+  const email = document.getElementById("register-email").value;
+  const password = document.getElementById("register-password").value;
+
+  // Proses registrasi dengan Firebase Authentication
+  createUserWithEmailAndPassword(auth, email, password)
+    .then((userCredential) => {
+      const user = userCredential.user;
+      alert("Registration successful! You can now log in.");
+      console.log("User registered:", user);
+      window.location.href = "index.html"; // Redirect ke halaman login
+    })
+    .catch((error) => {
+      console.error("Registration error:", error);
+      alert("Registration failed: " + error.message);
+    });
+});
 
 // Handle Login
 document.getElementById("login-form")?.addEventListener("submit", (e) => {
@@ -71,4 +97,5 @@ onAuthStateChanged(auth, (user) => {
         window.location.href = "menu.html";
       }
     }
-  } 
+  }
+});
