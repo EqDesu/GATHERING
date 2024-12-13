@@ -24,28 +24,6 @@ const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const auth = getAuth(app);
 
-// Handle Register
-document.getElementById("register-form")?.addEventListener("submit", (e) => {
-  e.preventDefault(); // Mencegah refresh halaman
-
-  // Ambil input email dan password
-  const email = document.getElementById("register-email").value;
-  const password = document.getElementById("register-password").value;
-
-  // Proses registrasi dengan Firebase Authentication
-  createUserWithEmailAndPassword(auth, email, password)
-    .then((userCredential) => {
-      const user = userCredential.user;
-      alert("Registration successful! You can now log in.");
-      console.log("User registered:", user);
-      window.location.href = "index.html"; // Redirect ke halaman login
-    })
-    .catch((error) => {
-      console.error("Registration error:", error.message);
-      alert("Registration failed: " + error.message);
-    });
-});
-
 // Handle Login
 document.getElementById("login-form")?.addEventListener("submit", (e) => {
   e.preventDefault(); // Mencegah refresh halaman
