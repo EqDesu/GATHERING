@@ -8,32 +8,43 @@
     <style>
         body {
             font-family: 'Arial', sans-serif;
-            background-color: #f4f4f4;
+            background-color: #3A0B40;
             margin: 0;
             padding: 0;
         }
 
         .header {
-            background-color: #007bff;
+            background-color: #520096;
             color: #fff;
             text-align: center;
             padding: 20px;
         }
 
         .feature-container {
-            display: flex;
-            justify-content: space-around;
-            padding: 20px;
+            width :auto;
+            height: auto;
+            min-height: 100vh;
         }
+        
+        .wrapper {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: warp;
+            justify-content:center;
+            align-items: center;
+        }
+        
+
 
         .feature-box {
-            background-color: #fff;
-            border-radius: 8px;
+            
+            background-color: #8200ff;
+            border-radius: 20px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             padding: 20px;
-            width: 25%;
             text-align: center;
             transition: transform 0.3s;
+            margin-block: 20px;
         }
 
         .feature-box:hover {
@@ -41,11 +52,11 @@
         }
 
         .feature-box h2 {
-            color: #007bff;
+            color: #2dffea;
         }
 
         .feature-box p {
-            color: #555;
+            color: #87fffe;
         }
 
         .feature-box a {
@@ -81,19 +92,19 @@
     <!-- Kotak Fitur -->
     <div class="feature-container">
         <div class="feature-box">
-            <h2>TAHAP PENGEMBANGAN</h2>
-            <p>fitur masih dalam pengembangan.</p>
-            <a href="/pengaturan">Akses Pengaturan</a>
+            <h2>Pengaturan</h2>
+            <p>Atur profil Anda di sini.</p>
+            <a href="profile.html">Profile</a>
         </div>
         <div class="feature-box">
-            <h2>comming</h2>
-            <p>wait for update.</p>
-            <a href="/laporan">Lihat Laporan</a>
+            <h2>Media Sosial</h2>
+            <p>Tautan Media Sosial.</p>
+            <a href="sosial.html">Media Sosial</a>
         </div>
         <div class="feature-box">
             <h2>Keluar</h2>
             <p>Terima kasih sudah menggunakan Gathering Zone. Sampai jumpa!</p>
-            <a href="index.html">Keluar</a>
+            <a href="index.html">LogOut</a>
         </div>
     </div>
 
