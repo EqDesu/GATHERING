@@ -26,7 +26,7 @@ document.getElementById("register-form").addEventListener("submit", (e) => {
   createUserWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
       alert("Registrasi berhasil! Silakan login.");
-      window.location.href = "login.html"; // Redirect ke halaman login
+      window.location.href = "index.html"; // Redirect ke halaman login
     })
     .catch((error) => {
       alert("Registrasi gagal: " + error.message);
