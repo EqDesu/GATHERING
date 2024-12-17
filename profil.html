@@ -1,0 +1,108 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil Pengguna</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .profil-container {
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .profil-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .foto-profil {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin-bottom: 20px;
+        }
+        
+        .profil-info {
+            margin-top: 20px;
+        }
+        
+        .profil-pengaturan {
+            margin-top: 20px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #4CAF50;
+            color: #fff;
+            cursor: pointer;
+        }
+        
+        button:hover {
+            background-color: #3e8e41;
+        }
+    </style>
+</head>
+
+
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="#">Beranda</a></li>
+                <li><a href="#">Pengaturan</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <section class="profil-container">
+            <div class="profil-header">
+                <img src="foto_profil.jpg" alt="Foto Profil" class="foto-profil">
+                <h2 id="nama-pengguna">Nama Pengguna</h2>
+                <p id="bio">Bio Singkat</p>
+            </div>
+            <div class="profil-info">
+                <p id="alamat">Alamat: ...</p>
+                <p id="kontak">Kontak: ...</p>
+            </div>
+            <div class="profil-pengaturan">
+                <button id="edit-profil">Edit Profil</button>
+                <button id="ubah-kata-sandi">Ubah Kata Sandi</button>
+            </div>
+        </section>
+    </main>
+    <script>
+        // Ambil data pengguna dari Firebase
+        firebase.firestore().collection("pengguna").doc(uid).get().then(doc => {
+            const pengguna = doc.data();
+            document.getElementById("nama-pengguna").innerHTML = pengguna.nama;
+            document.getElementById("bio").innerHTML = pengguna.bio;
+            document.getElementById("alamat").innerHTML = `Alamat: ${pengguna.alamat}`;
+            document.getElementById("kontak").innerHTML = `Kontak: ${pengguna.kontak}`;
+        });
+        
+        // Edit Profil
+        document.getElementById("edit-profil").addEventListener("click", () => {
+            // Kode untuk edit profil
+        });
+        
+        // Ubah Kata Sandi
+        document.getElementById("ubah-kata-sandi").addEventListener("click", () => {
+            // Kode untuk ubah kata sandi
+        });
+    </script>
+</body>
+</html>
