@@ -1,16 +1,15 @@
-// Import the functions needed from the Firebase SDKs
-import { initializeApp } from "firebase/app";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+// Import Firebase SDK
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
 
-// Your web app's Firebase configuration
+// Firebase Configuration
 const firebaseConfig = {
   apiKey: "AIzaSyA9lmHvPKxwcgU0UUAEzxIr5jJzQma_yEo",
   authDomain: "eqjawa-cihuy.firebaseapp.com",
   projectId: "eqjawa-cihuy",
-  storageBucket: "eqjawa-cihuy.firebaseapp.com",
+  storageBucket: "eqjawa-cihuy.appspot.com",
   messagingSenderId: "881496252840",
-  appId: "1:881496252840:web:dc88ca17028a6bf7093d9d",
-  measurementId: "G-6BT98ZZ433"
+  appId: "1:881496252840:web:dc88ca17028a6bf7093d9d"
 };
 
 // Initialize Firebase
@@ -18,23 +17,18 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
 // Handle Register
-document.getElementById("register-form")?.addEventListener("submit", (e) => {
-  e.preventDefault(); // Prevent page refresh
+document.getElementById("register-form").addEventListener("submit", (e) => {
+  e.preventDefault();
 
-  // Get email and password input
   const email = document.getElementById("register-email").value;
   const password = document.getElementById("register-password").value;
 
-  // Process registration with Firebase Authentication
   createUserWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
-      const user = userCredential.user;
-      alert("Registration successful! You can now log in.");
-      console.log("User registered:", user);
-      window.location.href = "login.html"; // Redirect to login page
+      alert("Registrasi berhasil! Silakan login.");
+      window.location.href = "login.html"; // Redirect ke halaman login
     })
     .catch((error) => {
-      console.error("Registration error:", error.message);
-      alert("Registration failed: " + error.message);
+      alert("Registrasi gagal: " + error.message);
     });
 });
