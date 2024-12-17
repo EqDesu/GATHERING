@@ -84,7 +84,7 @@
             </div>
         </section>
     </main>
-    <script>
+    <script type="module" src="profile.js">
         // Ambil data pengguna dari Firebase
         firebase.firestore().collection("pengguna").doc(uid).get().then(doc => {
             const pengguna = doc.data();
