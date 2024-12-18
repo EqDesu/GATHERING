@@ -11,12 +11,10 @@ firebase.initializeApp(firebaseConfig);
 
 // Mengambil data pengguna
 const uid = firebase.auth().currentUser.uid;
-firebase.firestore().collection("pengguna").doc(uid).get().then(doc => {
+firebase.firestore().collection("user").doc(uid).get().then(doc => {
   const pengguna = doc.data();
-  document.getElementById("nama-pengguna").innerHTML = pengguna.nama;
-  document.getElementById("bio").innerHTML = pengguna.bio;
-  document.getElementById("alamat").innerHTML = pengguna.alamat;
-  document.getElementById("kontak").innerHTML = pengguna.kontak;
+  document.getElementById("user-email").innerHTML = pengguna.nama;
+  
 });
 
 // Mengedit profil
