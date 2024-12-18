@@ -1,3 +1,6 @@
+// Firebase imports
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyA9lmHvPKxwcgU0UUAEzxIr5jJzQma_yEo",
@@ -7,7 +10,10 @@ const firebaseConfig = {
   messagingSenderId: "881496252840",
   appId: "1:881496252840:web:dc88ca17028a6bf7093d9d"
 };
-firebase.initializeApp(firebaseConfig);
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 
 // Mengambil data pengguna
 const uid = firebase.auth().currentUser.uid;
