@@ -18,8 +18,20 @@ const auth = getAuth(app);
 // Mengambil data pengguna
 const uid = firebase.auth().currentUser.uid;
 firebase.firestore().collection("user").doc(uid).get().then(doc => {
-  const pengguna = doc.data();
-  document.getElementById("user-email").innerHTML = pengguna.nama;
+  const pengguna = doc.data(); document.getElementById("userEmail").textCotentntent = userEmail;
+        });
+
+        // Edit Profil
+        document.getElementById("edit-profil").addEventListener("click", () => {
+            // Kode untuk edit profil
+        });
+
+        // Ubah Kata Sandi
+        document.getElementById("ubah-kata-sandi").addEventListener("click", () => {
+            // Kode untuk ubah kata sandi
+        });
+    </script>
+</body>
   
 });
 
