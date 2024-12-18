@@ -88,7 +88,7 @@
         // Ambil data pengguna dari Firebase
         firebase.firestore().collection("pengguna").doc(uid).get().then(doc => {
             const pengguna = doc.data();
-            document.getElementById("userEmail).textCotentntent = userEmail;
+            document.getElementById("userEmail").textCotentntent = userEmail;
         });
         
         // Edit Profil
