@@ -26,7 +26,7 @@ const user = Auth.currentUser
 // Function to update the user profile
   function updateUserProfile(user) {
     const userName = user.displayName || "No Name Provided";
-    const userEmail = user.email;
+      const email = document.getElementById("login-email").value;
     const userProfilePicture = user.photoURL || "brand-assets/profile.png";
     const emailVerified = user.emailVerified;
 
