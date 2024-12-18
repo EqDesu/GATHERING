@@ -1,75 +1,63 @@
-// Firebase imports
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
 
+  // Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyA9lmHvPKxwcgU0UUAEzxIr5jJzQma_yEo",
   authDomain: "eqjawa-cihuy.firebaseapp.com",
   projectId: "eqjawa-cihuy",
   storageBucket: "eqjawa-cihuy.firebasestorage.app",
   messagingSenderId: "881496252840",
-  appId: "1:881496252840:web:dc88ca17028a6bf7093d9d"
+  appId: "1:881496252840:web:dc88ca17028a6bf7093d9d",
+  measurementId: "G-6BT98ZZ433"
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+const analytics = getAnalytics(app);
 
-// Mengambil data pengguna
-const uid = firebase.auth().currentUser.uid;
-firebase.firestore().collection("user").doc(uid).get().then(doc => {
-  const pengguna = doc.data(); document.getElementById("userEmail").textCotentntent = userEmail;
-        });
+  // Function to update the user profile
+  function updateUserProfile(user) {
+    const userName = user.displayName || "No Name Provided";
+    const userEmail = user.email;
+    const userProfilePicture = user.photoURL || "brand-assets/profile.png";
+    const emailVerified = user.emailVerified;
 
-        // Edit Profil
-        document.getElementById("edit-profil").addEventListener("click", () => {
-            // Kode untuk edit profil
-        });
+    // Update the profile section with user data
+    document.getElementById("displayName").textContent = userName;
+    document.getElementById("email").textContent = userEmail;
+    document.getElementById("userProfilePicture").src = userProfilePicture;
 
-        // Ubah Kata Sandi
-        document.getElementById("ubah-kata-sandi").addEventListener("click", () => {
-            // Kode untuk ubah kata sandi
-        });
-    </script>
-</body>
-  
-});
+    const verificationBadge = document.getElementById("verificationStatus").querySelector("span");
+    verificationBadge.textContent = emailVerified ? "Verified" : "Not Verified";
+    verificationBadge.className = emailVerified ? "badge bg-success" : "badge bg-danger";
+  }
 
-// Mengedit profil
-document.getElementById("edit-profil").addEventListener("click", () => {
-  const nama = prompt("Masukkan nama baru:");
-  const bio = prompt("Masukkan bio baru:");
-  firebase.firestore().collection("pengguna").doc(uid).update({
-    nama: nama,
-    bio: bio
-  }).then(() => {
-    location.reload();
+  // Add the onAuthStateChanged listener
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      // User is signed in, call the updateUserProfile function
+      updateUserProfile(user);
+      console.log(user)
+    } else {
+      // User is not signed in, redirect to the registration page
+      alert("Create Account & login");
+      //window.location.href = "/register.html";
+    }
   });
-});
 
-// Mengubah kata sandi
-document.getElementById("ubah-kata-sandi").addEventListener("click", () => {
-  const kataSandiLama = prompt("Masukkan kata sandi lama:");
-  const kataSandiBaru = prompt("Masukkan kata sandi baru:");
-  firebase.auth().currentUser.updatePassword(kataSandiBaru).then(() => {
-    alert("Kata sandi berhasil diubah!");
-  }).catch(error => {
-    alert("Gagal mengubah kata sandi: " + error.message);
-  });
-});
-
-// Mengupload foto profil
-const uploadFoto = document.getElementById("upload-foto");
-uploadFoto.addEventListener("change", (e) => {
-  const file = e.target.files[0];
-  const storageRef = firebase.storage().ref(`fotoprofil/${uid}`);
-  storageRef.put(file).then((snapshot) => {
-    snapshot.ref.getDownloadURL().then((downloadURL) => {
-      firebase.firestore().collection("pengguna").doc(uid).update({
-        fotoProfil: downloadURL
-      }).then(() => {
-        location.reload();
-      });
+   // Logout function
+   document.getElementById("logoutBtn").addEventListener("click", () => {
+    signOut(auth).then(() => {
+      // Sign-out successful, redirect to the login page
+      window.location.href = "/index.html";
+    }).catch((error) => {
+      // An error happened during sign-out
+      console.error("Sign-out error:", error);
     });
   });
-});
