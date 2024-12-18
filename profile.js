@@ -20,6 +20,8 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
+const user = Auth.currentUser
+
 
 // Function to update the user profile
   function updateUserProfile(user) {
