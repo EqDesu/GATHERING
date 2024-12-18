@@ -20,10 +20,8 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
-const auth = getAuth(app);
-const user = auth.currentUser;
 
-  // Function to update the user profile
+// Function to update the user profile
   function updateUserProfile(user) {
     const userName = user.displayName || "No Name Provided";
     const userEmail = user.email;
@@ -31,7 +29,6 @@ const user = auth.currentUser;
     const emailVerified = user.emailVerified;
 
     // Update the profile section with user data
-    document.getElementById("displayName").textContent = userName;
     document.getElementById("email").textContent = userEmail;
     document.getElementById("userProfilePicture").src = userProfilePicture;
 
@@ -49,7 +46,7 @@ const user = auth.currentUser;
     } else {
       // User is not signed in, redirect to the registration page
       alert("Create Account & login");
-      //window.location.href = "/register.html";
+      //window.location.href = "register.html";
     }
   });
 
@@ -57,7 +54,7 @@ const user = auth.currentUser;
    document.getElementById("logoutBtn").addEventListener("click", () => {
     signOut(auth).then(() => {
       // Sign-out successful, redirect to the login page
-      window.location.href = "/index.html";
+      window.location.href = " index.html";
     }).catch((error) => {
       // An error happened during sign-out
       console.error("Sign-out error:", error);
