@@ -31,7 +31,7 @@ const user = Auth.currentUser
     const emailVerified = user.emailVerified;
 
     // Update the profile section with user data
-    document.getElementById("email").textContent = userEmail;
+    document.getElementById("login-email").textContent = userEmail;
     document.getElementById("userProfilePicture").src = userProfilePicture;
 
     const verificationBadge = document.getElementById("verificationStatus").querySelector("span");
