@@ -1,0 +1,70 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f0f0;
+    }
+
+    .container {
+      width: 80%;
+      margin: 200px auto;
+      text-align: center;
+    }
+
+    .chat-box {
+      background-color: #fff;
+      padding: 20px;
+      border: 1px solid #ddd;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      width: 300px;
+      margin: 20px auto;
+    }
+
+    .pesan-list {
+      padding: 10px;
+      overflow-y: auto;
+      max-height: 300px;
+    }
+
+    .pesan {
+      margin-bottom: 10px;
+      padding: 10px;
+      border-bottom: 1px solid #ccc;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .pesan.pengirim {
+      background-color: #4CAF50;
+      color: #fff;
+    }
+
+    .pesan.penerima {
+      background-color: #fff;
+      color: #333;
+    }
+  </style>
+  <script src="(link unavailable)"></script>
+  <script src="(link unavailable)"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>Chat App</h1>
+    <div class="chat-box">
+      <div id="pesan-list" class="pesan-list"></div>
+      <form id="kirim-pesan">
+        <input type="text" id="pesan-input" placeholder="Tulis pesan...">
+        <button id="kirim-btn">Kirim</button>
+      </form>
+    </div>
+  </div>
+  <script src="firebase.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
