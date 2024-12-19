@@ -1,63 +1,61 @@
+
 <!DOCTYPE html>
-
 <html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profil Pengguna</title>
+<style>
+body {
+font-family: Arial, sans-serif;
+background-color: #f0f0f0;
+}
 
-  <head>
-        <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profil Pengguna</title>
+.container {
+  width: 80%;
+  margin: 40px auto;
+  text-align: center;
+}
 
-  </head>
+.profile-card {
+  background-color: #fff;
+  padding: 20px;
+  border: 1px solid #ddd;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  width: 300px;
+  margin: 20px auto;
+}
 
-  <body>
- <!-- Profile Card -->
+.profile-picture {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 20px;
+}
 
-        <div class="col-md-4 mb-4">
+.username {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
 
-          <div class="card">
-
-            <div class="card-body text-center">
-
-              <img
-
-                id="userProfilePicture"
-
-                src="brand-assets/profile.png"
-
-                alt="Profile Picture"
-
-                class="img-fluid mb-3"
-
-                style="width: 100px;"
-
-              />
-
-              <h5 id="displayName" class="card-title">Username</h5>
-              <p>
-email :<span id="userEmail"></span>
-</p>
-
-              
-
-            </div>
-
-          </div>
-
-        </div>
-
-      </div>
-
-    </div>
+.email {
+  font-size: 16px;
+  color: #666;
+}
 
 
-
-   
-
-
-
-    <!-- Bootstrap JS and dependencies -->
-
-    <script type="module" src="profile.js"></script>
-  </body>
-
-  </html>
+</style>
+</head>
+<body>
+<div class="container">
+<div class="profile-card">
+<img id="userProfilePicture" src="brand-assets/profile.png" alt="Profile Picture" class="profile-picture">
+<h2 id="displayName" class="username"></h2>
+<p class="email">Email: <span id="userEmail"></span></p>
+</div>
+</div>
+<script type="module" src="profile.js"></script>
+</body>
+</html>
