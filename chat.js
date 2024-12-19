@@ -1,6 +1,3 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
-import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
 
 
 // Your web app's Firebase configuration
@@ -15,10 +12,8 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-
-// Reference to Firebase Database
-const db = firebase.database().ref("messages");
+const app = firebase.initializeApp(firebaseConfig);
+const db = firebase.database(app).ref("messages");
 
 // DOM Elements
 const messageInput = document.getElementById("messageInput");
