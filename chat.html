@@ -1,65 +1,80 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chat App</title>
+  <title>Chat Room</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #f0f0f0;
+      margin: 0;
+      padding: 0;
+      background: #f4f4f9;
     }
 
-    .container {
-      width: 80%;
-      margin: 200px auto;
-      text-align: center;
+    .chat-container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
     }
 
-    .chat-box {
-      background-color: #fff;
-      padding: 20px;
-      border: 1px solid #ddd;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      width: 300px;
-      margin: 20px auto;
-    }
-
-    .pesan-list {
-      padding: 10px;
-      overflow-y: auto;
-      max-height: 300px;
-    }
-
-    .pesan {
-      margin-bottom: 10px;
-      padding: 10px;
-      border-bottom: 1px solid #ccc;
+    .chat-header {
+      background: #6200ea;
+      color: #fff;
+      padding: 15px;
       display: flex;
       justify-content: space-between;
+      align-items: center;
     }
 
-    .pesan.pengirim {
-      background-color: #4CAF50;
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px;
+      background: #fff;
+    }
+
+    .chat-messages div {
+      margin-bottom: 10px;
+      padding: 10px;
+      border-radius: 5px;
+    }
+
+    .chat-input {
+      display: flex;
+      padding: 10px;
+      background: #eee;
+    }
+
+    .chat-input input {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px 0 0 5px;
+    }
+
+    .chat-input button {
+      padding: 10px;
+      background: #6200ea;
       color: #fff;
-    }
-
-    .pesan.penerima {
-      background-color: #fff;
-      color: #333;
+      border: none;
+      border-radius: 0 5px 5px 0;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Chat App</h1>
-    <div class="chat-box">
-      <div id="pesan-list" class="pesan-list"></div>
-      <form id="kirim-pesan">
-        <input type="text" id="pesan-input" placeholder="Tulis pesan...">
-        <button id="kirim-btn">Kirim</button>
-      </form>
+  <div class="chat-container">
+    <header class="chat-header">
+      <h1>Chat Room</h1>
+      <button onclick="goBack()">← Back</button>
+    </header>
+    <div id="messages" class="chat-messages">
+      <!-- Messages will be loaded here dynamically -->
+    </div>
+    <div class="chat-input">
+      <input type="text" id="messageInput" placeholder="Type your message here...">
+      <button id="sendBtn">Send</button>
     </div>
   </div>
   <script src="chat.js"></script>
