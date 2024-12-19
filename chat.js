@@ -19,44 +19,39 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-const auth = getAuth(app);
+firebase.initializeApp(firebaseConfig);
 
+// Reference to Firebase Database
+const db = firebase.database().ref("messages");
 
-// Fungsi mengirim pesan
-function kirimPesan(pesan) {
-  db.collection("pesan").add({
-    pesan: pesan,
-    waktu: new Date()
-  })
-  .then((docRef) => {
-    console.log("Pesan terkirim!");
-  })
-  .catch((error) => {
-    console.error("Error:", error);
-  });
+// DOM Elements
+const messageInput = document.getElementById("messageInput");
+const sendBtn = document.getElementById("sendBtn");
+const messagesDiv = document.getElementById("messages");
+
+// Send message
+sendBtn.addEventListener("click", () => {
+  const message = messageInput.value;
+  if (message.trim()) {
+    db.push({
+      text: message,
+      timestamp: Date.now(),
+      user: "Anonymous"
+    });
+    messageInput.value = "";
+  }
+});
+
+// Listen for new messages
+db.on("child_added", (snapshot) => {
+  const data = snapshot.val();
+  const messageElement = document.createElement("div");
+  messageElement.textContent = `${data.user}: ${data.text}`;
+  messagesDiv.appendChild(messageElement);
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+});
+
+// Go back function
+function goBack() {
+  window.history.back();
 }
-
-// Event listener untuk mengirim pesan
-document.getElementById('kirim-btn').addEventListener('click', (e) => {
-  e.preventDefault();
-  const pesanInput = document.getElementById('pesan-input');
-  const pesan = pesanInput.value;
-  kirimPesan(pesan);
-  pesanInput.value = '';
-});
-
-// Membaca pesan dari Firebase
-db.collection("pesan").orderBy("waktu", "desc").onSnapshot((querySnapshot) => {
-  const pesanList = document.getElementById('pesan-list');
-  pesanList.innerHTML = '';
-  querySnapshot.forEach((doc) => {
-    const pesanHTML = `
-      <div class="pesan penerima">
-        ${doc.data().pesan}
-      </div>
-    `;
-    pesanList.insertAdjacentHTML('beforeend', pesanHTML);
-  });
-});
