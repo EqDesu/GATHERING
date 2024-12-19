@@ -23,42 +23,24 @@ const analytics = getAnalytics(app);
 const user = Auth.currentUser
 
 
-// Function to update the user profile
-  function updateUserProfile(user) {
-    const userName = user.displayName || "No Name Provided";
-      const email = document.getElementById("login-email").value;
-    const userProfilePicture = user.photoURL || "brand-assets/profile.png";
-    const emailVerified = user.emailVerified;
-
-    // Update the profile section with user data
-    document.getElementById("login-email").textContent = userEmail;
-    document.getElementById("userProfilePicture").src = userProfilePicture;
-
-    const verificationBadge = document.getElementById("verificationStatus").querySelector("span");
-    verificationBadge.textContent = emailVerified ? "Verified" : "Not Verified";
-    verificationBadge.className = emailVerified ? "badge bg-success" : "badge bg-danger";
-  }
-
-  // Add the onAuthStateChanged listener
+// Fungsi untuk memperbarui profil pengguna
+function updateProfile() {
   onAuthStateChanged(auth, (user) => {
     if (user) {
-      // User is signed in, call the updateUserProfile function
-      updateUserProfile(user);
-      console.log(user)
+      const userEmail = user.email;
+      const displayName = user.displayName;
+      const userProfilePicture = user.photoURL;
+
+      // Perbarui elemen HTML
+      document.getElementById('userEmail').innerHTML = userEmail;
+      document.getElementById('displayName').innerHTML = displayName;
+      document.getElementById('userProfilePicture').src = userProfilePicture;
     } else {
-      // User is not signed in, redirect to the registration page
-      alert("Create Account & login");
-      //window.location.href = "register.html";
+      // Pengguna belum masuk
+      console.log('Pengguna belum masuk');
     }
   });
+}
 
-   // Logout function
-   document.getElementById("logoutBtn").addEventListener("click", () => {
-    signOut(auth).then(() => {
-      // Sign-out successful, redirect to the login page
-      window.location.href = " index.html";
-    }).catch((error) => {
-      // An error happened during sign-out
-      console.error("Sign-out error:", error);
-    });
-  });
+// Panggil fungsi updateProfile saat halaman dimuat
+updateProfile();
