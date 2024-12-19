@@ -5,6 +5,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyA9lmHvPKxwcgU0UUAEzxIr5jJzQma_yEo",
   authDomain: "eqjawa-cihuy.firebaseapp.com",
   projectId: "eqjawa-cihuy",
+  databaseURL: "https://eqjawa-cihuy-default-rtdb.asia-southeast1.firebasedatabase.app",
   storageBucket: "eqjawa-cihuy.firebasestorage.app", // Update with the correct storage bucket
   messagingSenderId: "881496252840",
   appId: "1:881496252840:web:dc88ca17028a6bf7093d9d",
