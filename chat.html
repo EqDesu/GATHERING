@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Live Chat</title>
+  <title>Live Chat with Other Users</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       display: flex;
       flex-direction: column;
-      justify-content: flex-end;
+      justify-content: flex-start;
       align-items: center;
       min-height: 100vh;
       background-color: #f4f4f9;
@@ -75,9 +75,10 @@
   </style>
 </head>
 <body>
-  <h1>Live Chat</h1>
+  <h1>Chat with Other Users</h1>
   <div id="username"></div> <!-- Menampilkan Nama Pengguna -->
   <div id="messages"></div>
+  
   <form id="chatForm">
     <input type="text" id="messageInput" placeholder="Type a message...">
     <button type="submit">Send</button>
@@ -86,7 +87,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
-    import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
+    import { getDatabase, ref, push, onChildAdded, update } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
 
     // Firebase Configuration
     const firebaseConfig = {
@@ -111,6 +112,7 @@
 
     let currentUserEmail = null;
     let currentUsername = null;
+    let recipientEmail = "user2@example.com"; // Contoh email penerima chat, bisa diganti sesuai yang diinginkan
 
     // Mendapatkan email dan nama pengguna
     onAuthStateChanged(auth, (user) => {
@@ -137,7 +139,7 @@
     }
 
     // Mendengarkan pesan baru dari Firebase Realtime Database
-    const messagesRef = ref(db, "messages");
+    const messagesRef = ref(db, `messages/${currentUserEmail}/${recipientEmail}`);
     onChildAdded(messagesRef, (data) => {
       const { sender, message } = data.val();
       addMessageToUI(sender, message);
@@ -148,8 +150,19 @@
       e.preventDefault();
       const message = messageInput.value.trim();
       if (message && currentUserEmail) {
-        // Menambahkan pesan baru ke Firebase
-        push(messagesRef, { sender: currentUsername, message });
+        // Menambahkan pesan baru ke Firebase untuk pengirim dan penerima
+        push(ref(db, `messages/${currentUserEmail}/${recipientEmail}`), {
+          sender: currentUsername,
+          message,
+          timestamp: Date.now()
+        });
+
+        push(ref(db, `messages/${recipientEmail}/${currentUserEmail}`), {
+          sender: currentUsername,
+          message,
+          timestamp: Date.now()
+        });
+
         messageInput.value = "";
       }
     });
