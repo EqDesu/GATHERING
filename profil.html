@@ -12,72 +12,51 @@
       background: linear-gradient(-45deg, #ff2222, #ff03f3, #9813ff, #8cb7ff, #1effd3);
       background-size: 400% 400%;
       animation: bg 12s ease infinite;
-      display: flex;
-      justify-content: center;
-      align-items: center;
     }
 
     @keyframes bg {
-      0% {
-        background-position: 0% 50%;
-      }
-      50% {
-        background-position: 100% 100%;
-      }
-      100% {
-        background-position: 0% 50%;
-      }
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 100%; }
+      100% { background-position: 0% 50%; }
     }
 
     .profile-container {
-      width: 350px;
+      max-width: 400px;
+      margin: 50px auto;
+      text-align: center;
       background: rgba(255, 255, 255, 0.1);
       padding: 20px;
-      border-radius: 20px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
-      text-align: center;
-      color: #fff;
-    }
-
-    .avatar-container {
-      position: relative;
-      margin-bottom: 20px;
+      border-radius: 40px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
     }
 
     .avatar-container img {
-      width: 120px;
-      height: 120px;
+      width: 150px;
+      height: 150px;
       border-radius: 50%;
       object-fit: cover;
       border: 3px solid #00ebff;
     }
 
-    .avatar-container select {
-      margin-top: 10px;
-      padding: 5px;
-      font-size: 14px;
-      border-radius: 5px;
-    }
-
     .profile-info h2 {
-      margin: 10px 0;
-      font-size: 24px;
+      color: #555;
     }
 
-    .email {
-      font-size: 16px;
-      color: #dcdcdc;
+    .input-container {
+      margin-top: 10px;
+    }
+
+    .input-container input, button {
+      padding: 10px;
       margin: 5px 0;
+      border-radius: 5px;
     }
 
     button {
-      margin-top: 10px;
-      padding: 10px 15px;
-      border: none;
-      background: #ff0066;
-      color: #fff;
-      border-radius: 5px;
       cursor: pointer;
+      background: #ff0606;
+      color: white;
+      border: none;
     }
 
     button:hover {
@@ -87,41 +66,16 @@
     .hidden {
       display: none;
     }
-
-    .input-container {
-      margin-top: 10px;
-    }
-
-    .input-container input {
-      width: calc(100% - 20px);
-      padding: 8px;
-      border: none;
-      border-radius: 5px;
-    }
-
-    .input-container button {
-      margin-top: 5px;
-      padding: 8px 15px;
-      background: #00c2ff;
-      color: #fff;
-    }
   </style>
 </head>
 <body>
   <div class="profile-container">
-    <h1>Profile Page</h1>
     <div class="avatar-container">
-      <img id="userProfilePicture" src="default.png" alt="Avatar">
-      <select id="avatarSelect">
-        <option value="default.png">Default</option>
-        <option value="avatar1.png">Avatar 1</option>
-        <option value="avatar2.png">Avatar 2</option>
-        <option value="avatar3.png">Avatar 3</option>
-      </select>
+      <img id="userProfilePicture" src="default.png" alt="Profile Picture">
     </div>
     <div class="profile-info">
       <h2 id="displayName">Username</h2>
-      <p class="email">Email: <span id="userEmail">example@mail.com</span></p>
+      <p>Email: <span id="userEmail">example@example.com</span></p>
       <button id="editNameBtn">Edit Name</button>
     </div>
     <div class="input-container hidden" id="nameInputContainer">
@@ -129,12 +83,12 @@
       <button id="saveNameBtn">Save</button>
     </div>
   </div>
-  <script type="module">
-    // Import Firebase SDK
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
 
-    // Firebase Configuration
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+    import { getAuth, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+
+    // Konfigurasi Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyA9lmHvPKxwcgU0UUAEzxIr5jJzQma_yEo",
       authDomain: "eqjawa-cihuy.firebaseapp.com",
@@ -144,47 +98,49 @@
       appId: "1:881496252840:web:dc88ca17028a6bf7093d9d"
     };
 
-    // Initialize Firebase
+    // Inisialisasi Firebase
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    // Fungsi untuk memperbarui profil pengguna
-    function updateProfile() {
+    // Fungsi untuk memperbarui UI
+    function updateProfileUI() {
       onAuthStateChanged(auth, (user) => {
         if (user) {
-          const userEmail = user.email;
-          const displayName = user.displayName || "Anonymous";
-          const userProfilePicture = user.photoURL || "default.png";
-
-          // Perbarui elemen HTML
-          document.getElementById('userEmail').innerHTML = userEmail;
-          document.getElementById('displayName').innerHTML = displayName;
-          document.getElementById('userProfilePicture').src = userProfilePicture;
+          document.getElementById('userEmail').innerHTML = user.email || "No email";
+          document.getElementById('displayName').innerHTML = user.displayName || "Anonymous";
+          document.getElementById('userProfilePicture').src = user.photoURL || "default.png";
         } else {
-          // Pengguna belum masuk
           console.log('Pengguna belum masuk');
         }
       });
     }
 
-    // Panggil fungsi updateProfile saat halaman dimuat
-    updateProfile();
+    // Panggil fungsi saat halaman dimuat
+    updateProfileUI();
 
-    // Avatar selection functionality
-    const avatar = document.getElementById('userProfilePicture');
-    const avatarSelect = document.getElementById('avatarSelect');
+    // Fungsi untuk menyimpan username ke Firebase
+    function saveNewUsername(newName) {
+      const user = auth.currentUser;
 
-    avatarSelect.addEventListener('change', (event) => {
-      const selectedAvatar = event.target.value;
-      avatar.src = `avatar/${selectedAvatar}`;
-    });
+      if (user) {
+        updateProfile(user, { displayName: newName })
+          .then(() => {
+            console.log('Username berhasil diperbarui');
+            updateProfileUI();
+          })
+          .catch((error) => {
+            console.error('Gagal memperbarui username:', error);
+          });
+      } else {
+        console.log('Pengguna belum masuk');
+      }
+    }
 
-    // Edit name functionality
-    const username = document.getElementById('displayName');
+    // Event listener untuk tombol "Save"
     const editNameBtn = document.getElementById('editNameBtn');
+    const saveNameBtn = document.getElementById('saveNameBtn');
     const nameInputContainer = document.getElementById('nameInputContainer');
     const nameInput = document.getElementById('nameInput');
-    const saveNameBtn = document.getElementById('saveNameBtn');
 
     editNameBtn.addEventListener('click', () => {
       nameInputContainer.classList.toggle('hidden');
@@ -193,7 +149,7 @@
     saveNameBtn.addEventListener('click', () => {
       const newName = nameInput.value.trim();
       if (newName) {
-        username.textContent = newName;
+        saveNewUsername(newName);
         nameInput.value = '';
         nameInputContainer.classList.add('hidden');
       }
