@@ -38,6 +38,13 @@
       border: 3px solid #00ebff;
     }
 
+    .avatar-container select {
+      margin-top: 10px;
+      padding: 5px;
+      font-size: 16px;
+      border-radius: 5px;
+    }
+
     .profile-info h2 {
       color: #555;
     }
@@ -72,6 +79,12 @@
   <div class="profile-container">
     <div class="avatar-container">
       <img id="userProfilePicture" src="default.png" alt="Profile Picture">
+      <select id="avatarSelect">
+        <option value="default.png">Default</option>
+        <option value="avatar1.png">Avatar 1</option>
+        <option value="avatar2.png">Avatar 2</option>
+        <option value="avatar3.png">Avatar 3</option>
+      </select>
     </div>
     <div class="profile-info">
       <h2 id="displayName">Username</h2>
@@ -117,6 +130,20 @@
 
     // Panggil fungsi saat halaman dimuat
     updateProfileUI();
+
+    // Fungsi untuk menyimpan avatar yang dipilih
+    const avatarSelect = document.getElementById('avatarSelect');
+    avatarSelect.addEventListener('change', (event) => {
+      const selectedAvatar = event.target.value;
+      document.getElementById('userProfilePicture').src = selectedAvatar;
+
+      const user = auth.currentUser;
+      if (user) {
+        updateProfile(user, { photoURL: selectedAvatar })
+          .then(() => console.log('Avatar berhasil diperbarui'))
+          .catch((error) => console.error('Gagal memperbarui avatar:', error));
+      }
+    });
 
     // Fungsi untuk menyimpan username ke Firebase
     function saveNewUsername(newName) {
