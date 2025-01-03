@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chat Room</title>
+  <title>Live Chat</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -34,7 +34,7 @@
       border-radius: 10px;
     }
 
-    .message span {
+    .message .sender {
       font-weight: bold;
       margin-right: 5px;
     }
@@ -67,10 +67,16 @@
     button:hover {
       background-color: #004d40;
     }
+
+    #username {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
   </style>
 </head>
 <body>
-  <h1>Chat Room</h1>
+  <h1>Live Chat</h1>
+  <div id="username"></div> <!-- Menampilkan Nama Pengguna -->
   <div id="messages"></div>
   <form id="chatForm">
     <input type="text" id="messageInput" placeholder="Type a message...">
@@ -101,12 +107,17 @@
     const messagesDiv = document.getElementById("messages");
     const chatForm = document.getElementById("chatForm");
     const messageInput = document.getElementById("messageInput");
+    const usernameDiv = document.getElementById("username");
 
-    // Mendapatkan email pengguna
     let currentUserEmail = null;
+    let currentUsername = null;
+
+    // Mendapatkan email dan nama pengguna
     onAuthStateChanged(auth, (user) => {
       if (user) {
         currentUserEmail = user.email;
+        currentUsername = user.displayName || "User";
+        usernameDiv.innerHTML = `Welcome, ${currentUsername}`;
       } else {
         alert("Silakan login terlebih dahulu!");
         window.location.href = "login.html"; // Ganti dengan halaman login
@@ -114,11 +125,11 @@
     });
 
     // Fungsi untuk menambahkan pesan ke tampilan
-    function addMessageToUI(email, message) {
+    function addMessageToUI(sender, message) {
       const messageDiv = document.createElement("div");
       messageDiv.className = "message";
       messageDiv.innerHTML = `
-        <span>${email}</span>
+        <span class="sender">${sender}:</span>
         <p>${message}</p>
       `;
       messagesDiv.appendChild(messageDiv);
@@ -128,8 +139,8 @@
     // Mendengarkan pesan baru dari Firebase Realtime Database
     const messagesRef = ref(db, "messages");
     onChildAdded(messagesRef, (data) => {
-      const { email, message } = data.val();
-      addMessageToUI(email, message);
+      const { sender, message } = data.val();
+      addMessageToUI(sender, message);
     });
 
     // Mengirim pesan
@@ -138,7 +149,7 @@
       const message = messageInput.value.trim();
       if (message && currentUserEmail) {
         // Menambahkan pesan baru ke Firebase
-        push(messagesRef, { email: currentUserEmail, message });
+        push(messagesRef, { sender: currentUsername, message });
         messageInput.value = "";
       }
     });
