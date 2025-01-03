@@ -1,60 +1,163 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Profil Pengguna</title>
-<style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile Page</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      height: 100vh;
+      background: linear-gradient(-45deg, #ff2222, #ff03f3, #9813ff, #8cb7ff, #1effd3);
+      background-size: 400% 400%;
+      animation: bg 12s ease infinite;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
 
-body {
-font-family: Arial, sans-serif;
-display: flex;
-justify-content: center;
-align-items: center;
-min-height: 100vh;
-margin: 0;
-background: #f3f4f6;
-}
+    @keyframes bg {
+      0% {
+        background-position: 0% 50%;
+      }
+      50% {
+        background-position: 100% 100%;
+      }
+      100% {
+        background-position: 0% 50%;
+      }
+    }
 
-.container {
-  width: 300px;
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  justify-content: center;
-}
+    .profile-container {
+      width: 350px;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 20px;
+      border-radius: 20px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+      text-align: center;
+      color: #fff;
+    }
 
-.profile-picture {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  object-fit: cover;
-  margin-bottom: 20px;
-}
+    .avatar-container {
+      position: relative;
+      margin-bottom: 20px;
+    }
 
-.username {
-  text-align: center;
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 10px;
-}
+    .avatar-container img {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #00ebff;
+    }
 
-.email {
-  font-size: 16px;
-  color: #666;
-}
+    .avatar-container select {
+      margin-top: 10px;
+      padding: 5px;
+      font-size: 14px;
+      border-radius: 5px;
+    }
 
+    .profile-info h2 {
+      margin: 10px 0;
+      font-size: 24px;
+    }
 
-</style>
+    .email {
+      font-size: 16px;
+      color: #dcdcdc;
+      margin: 5px 0;
+    }
+
+    button {
+      margin-top: 10px;
+      padding: 10px 15px;
+      border: none;
+      background: #ff0066;
+      color: #fff;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #8b4bf4;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .input-container {
+      margin-top: 10px;
+    }
+
+    .input-container input {
+      width: calc(100% - 20px);
+      padding: 8px;
+      border: none;
+      border-radius: 5px;
+    }
+
+    .input-container button {
+      margin-top: 5px;
+      padding: 8px 15px;
+      background: #00c2ff;
+      color: #fff;
+    }
+  </style>
 </head>
 <body>
-<div class="container">
-<img id="userProfilePicture" src="profile.png" alt="Profile Picture" class="profile-picture">
-<h2 id="displayName" class="username"></h2>
-<p class="email">Email: <span id="userEmail"></span></p>
-</div>
-<script type="module" src="profile.js"></script>
+  <div class="profile-container">
+    <h1>Profile Page</h1>
+    <div class="avatar-container">
+      <img id="avatar" src="default.png" alt="Avatar">
+      <select id="avatarSelect">
+        <option value="default.png">Default</option>
+        <option value="avatar1.png">Avatar 1</option>
+        <option value="avatar2.png">Avatar 2</option>
+        <option value="avatar3.png">Avatar 3</option>
+      </select>
+    </div>
+    <div class="profile-info">
+      <h2 id="username">Username</h2>
+      <p class="email">Email: <span id="userEmail">example@mail.com</span></p>
+      <button id="editNameBtn">Edit Name</button>
+    </div>
+    <div class="input-container hidden" id="nameInputContainer">
+      <input type="text" id="nameInput" placeholder="Enter new name">
+      <button id="saveNameBtn">Save</button>
+    </div>
+  </div>
+  <script>
+    // Avatar selection functionality
+    const avatar = document.getElementById('avatar');
+    const avatarSelect = document.getElementById('avatarSelect');
+
+    avatarSelect.addEventListener('change', (event) => {
+      const selectedAvatar = event.target.value;
+      avatar.src = `avatar/${selectedAvatar}`;
+    });
+
+    // Edit name functionality
+    const username = document.getElementById('username');
+    const editNameBtn = document.getElementById('editNameBtn');
+    const nameInputContainer = document.getElementById('nameInputContainer');
+    const nameInput = document.getElementById('nameInput');
+    const saveNameBtn = document.getElementById('saveNameBtn');
+
+    editNameBtn.addEventListener('click', () => {
+      nameInputContainer.classList.toggle('hidden');
+    });
+
+    saveNameBtn.addEventListener('click', () => {
+      const newName = nameInput.value.trim();
+      if (newName) {
+        username.textContent = newName;
+        nameInput.value = '';
+        nameInputContainer.classList.add('hidden');
+      }
+    });
+  </script>
 </body>
 </html>
