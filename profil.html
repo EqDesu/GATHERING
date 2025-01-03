@@ -111,7 +111,7 @@
   <div class="profile-container">
     <h1>Profile Page</h1>
     <div class="avatar-container">
-      <img id="avatar" src="default.png" alt="Avatar">
+      <img id="userProfilePicture" src="default.png" alt="Avatar">
       <select id="avatarSelect">
         <option value="default.png">Default</option>
         <option value="avatar1.png">Avatar 1</option>
@@ -120,7 +120,7 @@
       </select>
     </div>
     <div class="profile-info">
-      <h2 id="username">Username</h2>
+      <h2 id="displayName">Username</h2>
       <p class="email">Email: <span id="userEmail">example@mail.com</span></p>
       <button id="editNameBtn">Edit Name</button>
     </div>
@@ -129,9 +129,49 @@
       <button id="saveNameBtn">Save</button>
     </div>
   </div>
-  <script>
+  <script type="module">
+    // Import Firebase SDK
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+
+    // Firebase Configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyA9lmHvPKxwcgU0UUAEzxIr5jJzQma_yEo",
+      authDomain: "eqjawa-cihuy.firebaseapp.com",
+      projectId: "eqjawa-cihuy",
+      storageBucket: "eqjawa-cihuy.appspot.com",
+      messagingSenderId: "881496252840",
+      appId: "1:881496252840:web:dc88ca17028a6bf7093d9d"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // Fungsi untuk memperbarui profil pengguna
+    function updateProfile() {
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          const userEmail = user.email;
+          const displayName = user.displayName || "Anonymous";
+          const userProfilePicture = user.photoURL || "default.png";
+
+          // Perbarui elemen HTML
+          document.getElementById('userEmail').innerHTML = userEmail;
+          document.getElementById('displayName').innerHTML = displayName;
+          document.getElementById('userProfilePicture').src = userProfilePicture;
+        } else {
+          // Pengguna belum masuk
+          console.log('Pengguna belum masuk');
+        }
+      });
+    }
+
+    // Panggil fungsi updateProfile saat halaman dimuat
+    updateProfile();
+
     // Avatar selection functionality
-    const avatar = document.getElementById('avatar');
+    const avatar = document.getElementById('userProfilePicture');
     const avatarSelect = document.getElementById('avatarSelect');
 
     avatarSelect.addEventListener('change', (event) => {
@@ -140,7 +180,7 @@
     });
 
     // Edit name functionality
-    const username = document.getElementById('username');
+    const username = document.getElementById('displayName');
     const editNameBtn = document.getElementById('editNameBtn');
     const nameInputContainer = document.getElementById('nameInputContainer');
     const nameInput = document.getElementById('nameInput');
