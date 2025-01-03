@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Search Users</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      background-color: #f4f4f9;
+      margin: 0;
+    }
+
+    #searchResults {
+      width: 80%;
+      max-width: 600px;
+      margin-top: 20px;
+      padding: 10px;
+      background-color: #fff;
+      border: 1px solid #ddd;
+      height: 50vh;
+      overflow-y: auto;
+    }
+
+    .user-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px;
+      background-color: #e0f7fa;
+      margin: 10px 0;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .user-item:hover {
+      background-color: #80deea;
+    }
+
+    input[type="text"] {
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      margin-top: 20px;
+    }
+
+    button {
+      padding: 10px 15px;
+      background-color: #00796b;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #004d40;
+    }
+  </style>
+</head>
+<body>
+  <h1>Search for Users</h1>
+  <input type="text" id="searchInput" placeholder="Search by username or email..." />
+  <button onclick="searchUsers()">Search</button>
+  
+  <div id="searchResults">
+    <!-- Results will be displayed here -->
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+    import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
+
+    // Firebase Configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyA9lmHvPKxwcgU0UUAEzxIr5jJzQma_yEo",
+      authDomain: "eqjawa-cihuy.firebaseapp.com",
+      projectId: "eqjawa-cihuy",
+      storageBucket: "eqjawa-cihuy.appspot.com",
+      messagingSenderId: "881496252840",
+      appId: "1:881496252840:web:dc88ca17028a6bf7093d9d"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    // Elemen DOM
+    const searchInput = document.getElementById("searchInput");
+    const searchResultsDiv = document.getElementById("searchResults");
+
+    let currentUserEmail = null;
+
+    // Mendapatkan email pengguna saat ini
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUserEmail = user.email;
+      } else {
+        alert("Silakan login terlebih dahulu!");
+        window.location.href = "login.html"; // Ganti dengan halaman login
+      }
+    });
+
+    // Fungsi pencarian pengguna berdasarkan input
+    async function searchUsers() {
+      const searchTerm = searchInput.value.trim().toLowerCase();
+      if (searchTerm) {
+        const usersRef = ref(db, 'users'); // Pastikan data pengguna ada di Firebase
+        try {
+          const snapshot = await get(usersRef);
+          if (snapshot.exists()) {
+            const users = snapshot.val();
+            const filteredUsers = Object.entries(users).filter(([key, user]) => {
+              return user.email.toLowerCase().includes(searchTerm) || user.displayName.toLowerCase().includes(searchTerm);
+            });
+
+            displaySearchResults(filteredUsers);
+          } else {
+            searchResultsDiv.innerHTML = "No users found.";
+          }
+        } catch (error) {
+          console.error("Error fetching users:", error);
+        }
+      }
+    }
+
+    // Fungsi untuk menampilkan hasil pencarian
+    function displaySearchResults(users) {
+      searchResultsDiv.innerHTML = "";
+      users.forEach(([key, user]) => {
+        const userItem = document.createElement("div");
+        userItem.classList.add("user-item");
+        userItem.innerHTML = `
+          <span>${user.displayName} (${user.email})</span>
+          <button onclick="startChat('${user.email}')">Chat</button>
+        `;
+        searchResultsDiv.appendChild(userItem);
+      });
+    }
+
+    // Fungsi untuk memulai chat dengan pengguna yang dipilih
+    function startChat(userEmail) {
+      window.location.href = `chat.html?recipient=${userEmail}`;
+    }
+  </script>
+</body>
+</html>
