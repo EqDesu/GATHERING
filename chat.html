@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat Room</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f3f4f6;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 500px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    .chat-header {
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+    .messages {
+      max-height: 300px;
+      overflow-y: auto;
+      border: 1px solid #ddd;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+      background: #f9f9f9;
+    }
+    .message {
+      margin-bottom: 15px;
+    }
+    .message span {
+      font-size: 12px;
+      color: #666;
+      display: block;
+    }
+    .message p {
+      margin: 5px 0 0;
+    }
+    .chat-form {
+      display: flex;
+      gap: 10px;
+    }
+    .chat-form input {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+    .chat-form button {
+      padding: 10px 20px;
+      border: none;
+      background: #007bff;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .chat-form button:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="chat-header">Chat Room</div>
+    <div id="messages" class="messages"></div>
+    <form id="chatForm" class="chat-form">
+      <input type="text" id="messageInput" placeholder="Ketik pesan..." required>
+      <button type="submit">Kirim</button>
+    </form>
+  </div>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+    import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
+
+    // Konfigurasi Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyA9lmHvPKxwcgU0UUAEzxIr5jJzQma_yEo",
+      authDomain: "eqjawa-cihuy.firebaseapp.com",
+      projectId: "eqjawa-cihuy",
+      storageBucket: "eqjawa-cihuy.appspot.com",
+      messagingSenderId: "881496252840",
+      appId: "1:881496252840:web:dc88ca17028a6bf7093d9d"
+    };
+
+    // Inisialisasi Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    // Elemen DOM
+    const messagesDiv = document.getElementById("messages");
+    const chatForm = document.getElementById("chatForm");
+    const messageInput = document.getElementById("messageInput");
+
+    // Mendapatkan email pengguna
+    let currentUserEmail = null;
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUserEmail = user.email;
+      } else {
+        alert("Silakan login terlebih dahulu!");
+        window.location.href = "login.html"; // Ganti dengan halaman login
+      }
+    });
+
+    // Fungsi untuk menambahkan pesan ke tampilan
+    function addMessageToUI(email, message) {
+      const messageDiv = document.createElement("div");
+      messageDiv.className = "message";
+      messageDiv.innerHTML = `
+        <span>${email}</span>
+        <p>${message}</p>
+      `;
+      messagesDiv.appendChild(messageDiv);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    // Mendengarkan pesan baru dari Firebase Realtime Database
+    const messagesRef = ref(db, "messages");
+    onChildAdded(messagesRef, (data) => {
+      const { email, message } = data.val();
+      addMessageToUI(email, message);
+    });
+
+    // Mengirim pesan
+    chatForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const message = messageInput.value.trim();
+      if (message && currentUserEmail) {
+        push(messagesRef, { email: currentUserEmail, message });
+        messageInput.value = "";
+      }
+    });
+  </script>
+</body>
+</html>
