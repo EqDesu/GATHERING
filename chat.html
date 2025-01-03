@@ -7,82 +7,82 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f3f4f6;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: center;
+      min-height: 100vh;
+      background-color: #f4f4f9;
       margin: 0;
-      padding: 20px;
     }
-    .container {
-      max-width: 500px;
-      margin: auto;
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    }
-    .chat-header {
-      text-align: center;
-      font-size: 24px;
-      font-weight: bold;
+
+    #messages {
+      width: 80%;
+      max-width: 600px;
       margin-bottom: 20px;
-    }
-    .messages {
-      max-height: 300px;
+      padding: 10px;
+      height: 60vh;
       overflow-y: auto;
       border: 1px solid #ddd;
-      padding: 10px;
-      margin-bottom: 10px;
-      border-radius: 5px;
-      background: #f9f9f9;
+      background-color: #fff;
     }
+
     .message {
-      margin-bottom: 15px;
+      margin: 10px 0;
+      padding: 8px;
+      background-color: #e0f7fa;
+      border-radius: 10px;
     }
+
     .message span {
-      font-size: 12px;
-      color: #666;
-      display: block;
+      font-weight: bold;
+      margin-right: 5px;
     }
-    .message p {
-      margin: 5px 0 0;
-    }
-    .chat-form {
+
+    form {
       display: flex;
-      gap: 10px;
+      width: 80%;
+      max-width: 600px;
+      margin-bottom: 20px;
     }
-    .chat-form input {
+
+    input[type="text"] {
       flex: 1;
       padding: 10px;
-      border: 1px solid #ddd;
+      font-size: 16px;
+      border: 1px solid #ccc;
       border-radius: 5px;
     }
-    .chat-form button {
-      padding: 10px 20px;
-      border: none;
-      background: #007bff;
+
+    button {
+      padding: 10px 15px;
+      background-color: #00796b;
       color: white;
+      border: none;
       border-radius: 5px;
+      margin-left: 10px;
       cursor: pointer;
     }
-    .chat-form button:hover {
-      background: #0056b3;
+
+    button:hover {
+      background-color: #004d40;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="chat-header">Chat Room</div>
-    <div id="messages" class="messages"></div>
-    <form id="chatForm" class="chat-form">
-      <input type="text" id="messageInput" placeholder="Ketik pesan..." required>
-      <button type="submit">Kirim</button>
-    </form>
-  </div>
+  <h1>Chat Room</h1>
+  <div id="messages"></div>
+  <form id="chatForm">
+    <input type="text" id="messageInput" placeholder="Type a message...">
+    <button type="submit">Send</button>
+  </form>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
     import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
 
-    // Konfigurasi Firebase
+    // Firebase Configuration
     const firebaseConfig = {
       apiKey: "AIzaSyA9lmHvPKxwcgU0UUAEzxIr5jJzQma_yEo",
       authDomain: "eqjawa-cihuy.firebaseapp.com",
@@ -92,7 +92,7 @@
       appId: "1:881496252840:web:dc88ca17028a6bf7093d9d"
     };
 
-    // Inisialisasi Firebase
+    // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getDatabase(app);
@@ -137,6 +137,7 @@
       e.preventDefault();
       const message = messageInput.value.trim();
       if (message && currentUserEmail) {
+        // Menambahkan pesan baru ke Firebase
         push(messagesRef, { email: currentUserEmail, message });
         messageInput.value = "";
       }
