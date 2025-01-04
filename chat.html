@@ -59,6 +59,7 @@
     .message-row {
       display: flex;
       margin-bottom: 10px;
+      position: relative;
     }
 
     .message-row.sender {
@@ -135,6 +136,40 @@
     .message-input button:hover {
       background: #0056b3;
     }
+
+    .delete-button {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background: #ff3333;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .delete-button:hover {
+      background: #cc0000;
+    }
+
+    .select-checkbox {
+      margin-right: 10px;
+    }
+
+    .delete-selected {
+      padding: 10px;
+      background: #ff3333;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .delete-selected:hover {
+      background: #cc0000;
+    }
   </style>
 </head>
 <body>
@@ -148,11 +183,14 @@
       <input type="text" id="messageInput" placeholder="Ketik pesan...">
       <button id="sendMessageButton">Kirim</button>
     </div>
+    <div>
+      <button class="delete-selected" id="deleteSelectedButton" style="display: none;">Hapus Pesan Terpilih</button>
+    </div>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-    import { getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion, onSnapshot } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion, onSnapshot, deleteField } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
 
     // Firebase Configuration
@@ -175,10 +213,13 @@
     const chatHeader = document.getElementById("chatHeader");
     const friendNameElem = document.getElementById("friendName");
     const friendAvatarElem = document.getElementById("friendAvatar");
+    const deleteSelectedButton = document.getElementById("deleteSelectedButton");
 
     // Ambil friendId dari URL
     const urlParams = new URLSearchParams(window.location.search);
     friendId = urlParams.get("friendId");
+
+    let selectedMessages = [];
 
     // Fungsi untuk memuat pesan secara real-time
     async function loadMessages() {
@@ -191,7 +232,7 @@
         messagesDiv.innerHTML = ""; // Kosongkan pesan lama
         if (docSnap.exists()) {
           const messages = docSnap.data().messages || [];
-          messages.forEach((msg) => {
+          messages.forEach((msg, index) => {
             const row = document.createElement("div");
             row.className = "message-row";
             row.classList.add(msg.sender === currentUserId ? "sender" : "receiver");
@@ -201,6 +242,13 @@
             bubble.classList.add(msg.sender === currentUserId ? "sender" : "receiver");
             bubble.textContent = msg.text;
 
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.className = "select-checkbox";
+            checkbox.id = `msg-${index}`;
+            checkbox.onclick = () => toggleSelection(index);
+
+            row.appendChild(checkbox);
             row.appendChild(bubble);
             messagesDiv.appendChild(row);
           });
@@ -250,21 +298,38 @@
       }
     });
 
-    // Tampilkan nama dan avatar teman di header
-    async function loadFriendData() {
-      if (!friendId) return;
+    // Fungsi untuk memilih pesan
+    function toggleSelection(index) {
+      if (selectedMessages.includes(index)) {
+        selectedMessages = selectedMessages.filter(i => i !== index);
+      } else {
+        selectedMessages.push(index);
+      }
 
-      const friendRef = doc(db, "users", friendId);
-      const friendDoc = await getDoc(friendRef);
+      deleteSelectedButton.style.display = selectedMessages.length > 0 ? "block" : "none";
+    }
 
-      if (friendDoc.exists()) {
-        const data = friendDoc.data();
-        friendNameElem.textContent = data.displayName || "Anonymous";
-        friendAvatarElem.src = data.avatar || "https://via.placeholder.com/40";
+    // Fungsi untuk menghapus pesan terpilih
+    async function deleteSelectedMessages() {
+      if (!currentUserId || !friendId || selectedMessages.length === 0) return;
+
+      const chatId = [currentUserId, friendId].sort().join("_");
+      const chatRef = doc(db, "chats", chatId);
+
+      const chatSnap = await getDoc(chatRef);
+      if (chatSnap.exists()) {
+        const messages = chatSnap.data().messages || [];
+
+        selectedMessages.sort((a, b) => b - a).forEach(index => {
+          messages.splice(index, 1); // Hapus pesan berdasarkan index
+        });
+
+        await updateDoc(chatRef, { messages: messages });
       }
     }
 
-    loadFriendData();
+    // Event listener untuk tombol hapus pesan terpilih
+    deleteSelectedButton.addEventListener("click", deleteSelectedMessages);
   </script>
 </body>
 </html>
