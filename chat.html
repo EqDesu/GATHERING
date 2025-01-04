@@ -48,55 +48,71 @@
     }
 
     .messages {
-      max-height: 400px;
+      flex: 1;
       overflow-y: auto;
-      margin-bottom: 20px;
-      border: 1px solid #ddd;
-      padding: 10px;
-      border-radius: 5px;
+      padding: 20px;
       background: #f9f9f9;
-    }
-
-    .message {
-      margin-bottom: 10px;
       display: flex;
-      align-items: center;
+      flex-direction: column;
     }
 
-    .message.sender {
+    .message-row {
+      display: flex;
+      margin-bottom: 10px;
+    }
+
+    .message-row.sender {
       justify-content: flex-end;
     }
 
-    .message.receiver {
+    .message-row.receiver {
       justify-content: flex-start;
     }
 
-    .message img {
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      margin-right: 10px;
-    }
-
-    .message-bubble {
-      padding: 10px;
-      border-radius: 15px;
+    .bubble {
       max-width: 70%;
+      padding: 10px;
+      border-radius: 10px;
+      position: relative;
+      font-size: 14px;
+      line-height: 1.5;
     }
 
-    .message.sender .message-bubble {
-      background-color: #007bff;
+    .bubble.sender {
+      background: #007bff;
       color: white;
+      text-align: right;
     }
 
-    .message.receiver .message-bubble {
-      background-color: #e0e0e0;
+    .bubble.sender::after {
+      content: '';
+      position: absolute;
+      right: -10px;
+      top: 10px;
+      border-width: 10px;
+      border-style: solid;
+      border-color: transparent transparent transparent #007bff;
+    }
+
+    .bubble.receiver {
+      background: #e0e0e0;
       color: black;
+    }
+
+    .bubble.receiver::after {
+      content: '';
+      position: absolute;
+      left: -10px;
+      top: 10px;
+      border-width: 10px;
+      border-style: solid;
+      border-color: transparent #e0e0e0 transparent transparent;
     }
 
     .message-input {
       display: flex;
       padding: 10px;
+      border-top: 1px solid #ddd;
     }
 
     .message-input input {
@@ -124,8 +140,8 @@
 <body>
   <div class="chat-container">
     <div class="chat-header" id="chatHeader">
-      <img id="friendAvatar" src="" alt="Friend Avatar">
-      <h1>Chat</h1>
+      <img src="https://via.placeholder.com/40" alt="Avatar" id="friendAvatar">
+      <h1 id="friendName">Loading...</h1>
     </div>
     <div class="messages" id="messages"></div>
     <div class="message-input">
@@ -136,7 +152,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-    import { getFirestore, doc, getDoc, updateDoc, arrayUnion, onSnapshot } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion, onSnapshot } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
 
     // Firebase Configuration
@@ -157,7 +173,8 @@
     let friendId;
     const messagesDiv = document.getElementById("messages");
     const chatHeader = document.getElementById("chatHeader");
-    const friendAvatar = document.getElementById("friendAvatar");
+    const friendNameElem = document.getElementById("friendName");
+    const friendAvatarElem = document.getElementById("friendAvatar");
 
     // Ambil friendId dari URL
     const urlParams = new URLSearchParams(window.location.search);
@@ -175,20 +192,17 @@
         if (docSnap.exists()) {
           const messages = docSnap.data().messages || [];
           messages.forEach((msg) => {
-            const div = document.createElement("div");
-            div.className = "message";
-            div.classList.add(msg.sender === currentUserId ? "sender" : "receiver");
-
-            const img = document.createElement("img");
-            img.src = msg.sender === currentUserId ? (userPhotoURL || "default.png") : (friendPhotoURL || "default.png");
-            div.appendChild(img);
+            const row = document.createElement("div");
+            row.className = "message-row";
+            row.classList.add(msg.sender === currentUserId ? "sender" : "receiver");
 
             const bubble = document.createElement("div");
-            bubble.className = "message-bubble";
+            bubble.className = "bubble";
+            bubble.classList.add(msg.sender === currentUserId ? "sender" : "receiver");
             bubble.textContent = msg.text;
-            div.appendChild(bubble);
 
-            messagesDiv.appendChild(div);
+            row.appendChild(bubble);
+            messagesDiv.appendChild(row);
           });
           messagesDiv.scrollTop = messagesDiv.scrollHeight; // Scroll ke bawah
         }
@@ -201,6 +215,12 @@
 
       const chatId = [currentUserId, friendId].sort().join("_");
       const chatRef = doc(db, "chats", chatId);
+
+      const chatSnap = await getDoc(chatRef);
+      if (!chatSnap.exists()) {
+        await setDoc(chatRef, { messages: [] });
+      }
+
       await updateDoc(chatRef, {
         messages: arrayUnion({
           sender: currentUserId,
@@ -230,7 +250,7 @@
       }
     });
 
-    // Tampilkan nama teman dan avatar di header
+    // Tampilkan nama dan avatar teman di header
     async function loadFriendData() {
       if (!friendId) return;
 
@@ -238,9 +258,9 @@
       const friendDoc = await getDoc(friendRef);
 
       if (friendDoc.exists()) {
-        const friendData = friendDoc.data();
-        chatHeader.querySelector("h1").textContent = `Chat dengan ${friendData.displayName || "Anonymous"}`;
-        friendAvatar.src = friendData.photoURL || "default.png";
+        const data = friendDoc.data();
+        friendNameElem.textContent = data.displayName || "Anonymous";
+        friendAvatarElem.src = data.avatar || "https://via.placeholder.com/40";
       }
     }
 
