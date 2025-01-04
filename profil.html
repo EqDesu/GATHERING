@@ -100,6 +100,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
     import { getAuth, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+    import { getFirestore, doc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 
     // Konfigurasi Firebase
     const firebaseConfig = {
@@ -114,6 +115,7 @@
     // Inisialisasi Firebase
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
+    const db = getFirestore(app);
 
     // Fungsi untuk memperbarui UI
     function updateProfileUI() {
@@ -140,12 +142,23 @@
       const user = auth.currentUser;
       if (user) {
         updateProfile(user, { photoURL: selectedAvatar })
-          .then(() => console.log('Avatar berhasil diperbarui'))
+          .then(() => {
+            console.log('Avatar berhasil diperbarui');
+            // Update data di Firestore
+            const userRef = doc(db, "users", user.uid);
+            updateDoc(userRef, {
+              photoURL: selectedAvatar
+            }).then(() => {
+              console.log('Avatar berhasil diperbarui di Firestore');
+            }).catch((error) => {
+              console.error('Gagal memperbarui avatar di Firestore:', error);
+            });
+          })
           .catch((error) => console.error('Gagal memperbarui avatar:', error));
       }
     });
 
-    // Fungsi untuk menyimpan username ke Firebase
+    // Fungsi untuk menyimpan username ke Firebase dan Firestore
     function saveNewUsername(newName) {
       const user = auth.currentUser;
 
@@ -153,7 +166,16 @@
         updateProfile(user, { displayName: newName })
           .then(() => {
             console.log('Username berhasil diperbarui');
-            updateProfileUI();
+            // Update data di Firestore
+            const userRef = doc(db, "users", user.uid);
+            updateDoc(userRef, {
+              displayName: newName
+            }).then(() => {
+              console.log('Username berhasil diperbarui di Firestore');
+              updateProfileUI();
+            }).catch((error) => {
+              console.error('Gagal memperbarui username di Firestore:', error);
+            });
           })
           .catch((error) => {
             console.error('Gagal memperbarui username:', error);
