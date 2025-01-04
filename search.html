@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Friends</title>
+  <title>Friends List</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -76,17 +76,26 @@
 
     <div class="add-friend">
       <h3>Tambah Teman</h3>
-      <input type="text" id="friendInput" placeholder="Masukkan email atau username teman">
+      <input type="text" id="friendInput" placeholder="Masukkan email teman">
       <button id="addFriendButton">Tambah Teman</button>
     </div>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-    import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+    import {
+      getFirestore,
+      doc,
+      getDoc,
+      updateDoc,
+      query,
+      where,
+      collection,
+      getDocs
+    } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
 
-// Firebase Configuration
+    // Firebase Configuration
 const firebaseConfig = {
   apiKey: "AIzaSyA9lmHvPKxwcgU0UUAEzxIr5jJzQma_yEo",
   authDomain: "eqjawa-cihuy.firebaseapp.com",
@@ -132,15 +141,27 @@ const firebaseConfig = {
     async function addFriend(friendIdentifier) {
       if (!currentUserId) return;
 
-      // Cari pengguna berdasarkan email atau username
-      const userQuery = doc(db, "users", friendIdentifier);
-      const friendDoc = await getDoc(userQuery);
+      // Cari pengguna berdasarkan email
+      const userQuery = query(
+        collection(db, "users"),
+        where("email", "==", friendIdentifier)
+      );
 
-      if (friendDoc.exists()) {
+      const querySnapshot = await getDocs(userQuery);
+
+      if (!querySnapshot.empty) {
+        const friendDoc = querySnapshot.docs[0]; // Ambil dokumen pertama yang cocok
         const friendId = friendDoc.id;
 
-        // Update daftar teman pengguna saat ini
+        // Cek apakah teman sudah ada
         const currentUserRef = doc(db, "users", currentUserId);
+        const currentUserDoc = await getDoc(currentUserRef);
+        if (currentUserDoc.exists() && currentUserDoc.data().friends[friendId]) {
+          alert("Teman sudah ada di daftar!");
+          return;
+        }
+
+        // Update daftar teman pengguna saat ini
         await updateDoc(currentUserRef, {
           [`friends.${friendId}`]: true
         });
