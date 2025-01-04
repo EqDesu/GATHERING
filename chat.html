@@ -9,51 +9,99 @@
       font-family: Arial, sans-serif;
       background: #f3f4f6;
       margin: 0;
-      padding: 20px;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
     }
 
     .chat-container {
+      width: 90%;
       max-width: 600px;
-      margin: 0 auto;
       background: #fff;
       border-radius: 10px;
-      padding: 20px;
+      overflow: hidden;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
     }
 
     .chat-header {
-      text-align: center;
-      font-size: 24px;
-      font-weight: bold;
-      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      padding: 15px;
+      background: #007bff;
+      color: white;
+    }
+
+    .chat-header img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      margin-right: 10px;
+    }
+
+    .chat-header h1 {
+      margin: 0;
+      font-size: 18px;
     }
 
     .messages {
-      max-height: 400px;
+      flex: 1;
       overflow-y: auto;
-      margin-bottom: 20px;
-      border: 1px solid #ddd;
-      padding: 10px;
-      border-radius: 5px;
+      padding: 20px;
       background: #f9f9f9;
     }
 
-    .message {
+    .bubble {
+      max-width: 70%;
       margin-bottom: 10px;
+      padding: 10px;
+      border-radius: 10px;
+      position: relative;
+      display: inline-block;
+      font-size: 14px;
+      line-height: 1.5;
     }
 
-    .message.sender {
+    .bubble.sender {
+      background: #007bff;
+      color: white;
+      margin-left: auto;
       text-align: right;
-      color: blue;
     }
 
-    .message.receiver {
-      text-align: left;
-      color: green;
+    .bubble.sender::after {
+      content: '';
+      position: absolute;
+      right: -10px;
+      top: 10px;
+      border-width: 10px;
+      border-style: solid;
+      border-color: transparent transparent transparent #007bff;
+    }
+
+    .bubble.receiver {
+      background: #e0e0e0;
+      color: black;
+      margin-right: auto;
+    }
+
+    .bubble.receiver::after {
+      content: '';
+      position: absolute;
+      left: -10px;
+      top: 10px;
+      border-width: 10px;
+      border-style: solid;
+      border-color: transparent #e0e0e0 transparent transparent;
     }
 
     .message-input {
       display: flex;
+      padding: 10px;
+      border-top: 1px solid #ddd;
     }
 
     .message-input input {
@@ -80,7 +128,10 @@
 </head>
 <body>
   <div class="chat-container">
-    <div class="chat-header" id="chatHeader">Chat</div>
+    <div class="chat-header" id="chatHeader">
+      <img src="https://via.placeholder.com/40" alt="Avatar" id="friendAvatar">
+      <h1 id="friendName">Loading...</h1>
+    </div>
     <div class="messages" id="messages"></div>
     <div class="message-input">
       <input type="text" id="messageInput" placeholder="Ketik pesan...">
@@ -111,6 +162,8 @@
     let friendId;
     const messagesDiv = document.getElementById("messages");
     const chatHeader = document.getElementById("chatHeader");
+    const friendNameElem = document.getElementById("friendName");
+    const friendAvatarElem = document.getElementById("friendAvatar");
 
     // Ambil friendId dari URL
     const urlParams = new URLSearchParams(window.location.search);
@@ -129,7 +182,7 @@
           const messages = docSnap.data().messages || [];
           messages.forEach((msg) => {
             const div = document.createElement("div");
-            div.className = "message";
+            div.className = "bubble";
             div.classList.add(msg.sender === currentUserId ? "sender" : "receiver");
             div.textContent = msg.text;
             messagesDiv.appendChild(div);
@@ -180,19 +233,21 @@
       }
     });
 
-    // Tampilkan nama teman di header
-    async function loadFriendName() {
+    // Tampilkan nama dan avatar teman di header
+    async function loadFriendData() {
       if (!friendId) return;
 
       const friendRef = doc(db, "users", friendId);
       const friendDoc = await getDoc(friendRef);
 
       if (friendDoc.exists()) {
-        chatHeader.textContent = `Chat dengan ${friendDoc.data().displayName || "Anonymous"}`;
+        const data = friendDoc.data();
+        friendNameElem.textContent = data.displayName || "Anonymous";
+        friendAvatarElem.src = data.avatar || "https://via.placeholder.com/40";
       }
     }
 
-    loadFriendName();
+    loadFriendData();
   </script>
 </body>
 </html>
