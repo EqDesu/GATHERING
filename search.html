@@ -33,11 +33,18 @@
 
     .friend-list li {
       display: flex;
-      justify-content: space-between;
+      align-items: center;
       padding: 10px 15px;
       margin: 5px 0;
       border: 1px solid #ddd;
       border-radius: 5px;
+    }
+
+    .friend-list img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      margin-right: 10px;
     }
 
     .add-friend {
@@ -96,14 +103,14 @@
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
 
     // Firebase Configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyA9lmHvPKxwcgU0UUAEzxIr5jJzQma_yEo",
-  authDomain: "eqjawa-cihuy.firebaseapp.com",
-  projectId: "eqjawa-cihuy",
-  storageBucket: "eqjawa-cihuy.appspot.com",
-  messagingSenderId: "881496252840",
-  appId: "1:881496252840:web:dc88ca17028a6bf7093d9d"
-};
+    const firebaseConfig = {
+      apiKey: "AIzaSyA9lmHvPKxwcgU0UUAEzxIr5jJzQma_yEo",
+      authDomain: "eqjawa-cihuy.firebaseapp.com",
+      projectId: "eqjawa-cihuy",
+      storageBucket: "eqjawa-cihuy.appspot.com",
+      messagingSenderId: "881496252840",
+      appId: "1:881496252840:web:dc88ca17028a6bf7093d9d"
+    };
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
@@ -129,7 +136,18 @@ const firebaseConfig = {
             if (friendDoc.exists()) {
               const friendData = friendDoc.data();
               const li = document.createElement("li");
-              li.textContent = friendData.displayName || "Anonymous";
+
+              // Tambahkan gambar profil
+              const img = document.createElement("img");
+              img.src = friendData.photoURL || "default.png"; // Gunakan gambar default jika tidak ada photoURL
+              img.alt = friendData.displayName || "Friend";
+
+              // Tambahkan nama teman
+              const span = document.createElement("span");
+              span.textContent = friendData.displayName || "Anonymous";
+
+              li.appendChild(img);
+              li.appendChild(span);
               friendList.appendChild(li);
             }
           }
