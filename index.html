@@ -2,13 +2,13 @@
 <html lang="id">
 <head>
   <link rel="manifest" href="manifest.json">
-<script>
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("service-worker.js")
-      .then(() => console.log("Service Worker registered"))
-      .catch((err) => console.error("Service Worker failed:", err));
-  }
-</script>
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("service-worker.js")
+        .then(() => console.log("Service Worker registered"))
+        .catch((err) => console.error("Service Worker failed:", err));
+    }
+  </script>
 
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -69,6 +69,7 @@
     // Firebase imports
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
     // Firebase configuration
     const firebaseConfig = {
@@ -83,6 +84,7 @@
     // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
+    const db = getFirestore(app);
 
     // Handle Login
     document.getElementById("login-form")?.addEventListener("submit", (e) => {
@@ -96,6 +98,21 @@
       signInWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
           const user = userCredential.user;
+
+          // Add user to Firestore if not already added
+          const userRef = doc(db, "users", user.uid);
+          setDoc(userRef, {
+            email: user.email || "",
+            displayName: user.displayName || "Anonymous",  // Can be modified based on user's input
+            photoURL: user.photoURL || "default.png",  // Default photo if none provided
+            friends: {}  // Empty friends list for now
+          })
+          .then(() => {
+            console.log("User added to Firestore!");
+          })
+          .catch((error) => {
+            console.error("Error adding user to Firestore:", error);
+          });
 
           // Simulate owner validation
           const isOwner = user.email === "equillyptian@gmail.com"; // Replace with your own logic
@@ -113,8 +130,6 @@
           alert("Login failed: " + error.message);
         });
     });
-
-    
   </script>
 </body>
 </html>
