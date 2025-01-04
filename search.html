@@ -3,152 +3,182 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Search Users</title>
+  <title>Friends</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      min-height: 100vh;
-      background-color: #f4f4f9;
+      background: #f3f4f6;
       margin: 0;
+      padding: 20px;
     }
 
-    #searchResults {
-      width: 80%;
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+
+    .container {
       max-width: 600px;
-      margin-top: 20px;
-      padding: 10px;
-      background-color: #fff;
-      border: 1px solid #ddd;
-      height: 50vh;
-      overflow-y: auto;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
 
-    .user-item {
+    .friend-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .friend-list li {
       display: flex;
       justify-content: space-between;
-      padding: 10px;
-      background-color: #e0f7fa;
-      margin: 10px 0;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    .user-item:hover {
-      background-color: #80deea;
-    }
-
-    input[type="text"] {
-      padding: 10px;
-      font-size: 16px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      margin-top: 20px;
-    }
-
-    button {
       padding: 10px 15px;
-      background-color: #00796b;
+      margin: 5px 0;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+
+    .add-friend {
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .add-friend input {
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+
+    .add-friend button {
+      padding: 10px;
+      background: #007bff;
       color: white;
       border: none;
       border-radius: 5px;
       cursor: pointer;
     }
 
-    button:hover {
-      background-color: #004d40;
+    .add-friend button:hover {
+      background: #0056b3;
     }
   </style>
 </head>
 <body>
-  <h1>Search for Users</h1>
-  <input type="text" id="searchInput" placeholder="Search by username or email..." />
-  <button onclick="searchUsers()">Search</button>
-  
-  <div id="searchResults">
-    <!-- Results will be displayed here -->
+  <h1>Friends</h1>
+  <div class="container">
+    <ul class="friend-list" id="friendList">
+      <!-- Daftar teman akan dimuat di sini -->
+    </ul>
+
+    <div class="add-friend">
+      <h3>Tambah Teman</h3>
+      <input type="text" id="friendInput" placeholder="Masukkan email atau username teman">
+      <button id="addFriendButton">Tambah Teman</button>
+    </div>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+    import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
-    import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
 
-    // Firebase Configuration
+    // Konfigurasi Firebase
     const firebaseConfig = {
-      apiKey: "AIzaSyA9lmHvPKxwcgU0UUAEzxIr5jJzQma_yEo",
-      authDomain: "eqjawa-cihuy.firebaseapp.com",
-      projectId: "eqjawa-cihuy",
-      storageBucket: "eqjawa-cihuy.appspot.com",
-      messagingSenderId: "881496252840",
-      appId: "1:881496252840:web:dc88ca17028a6bf7093d9d"
+      apiKey: "API_KEY",
+      authDomain: "PROJECT_ID.firebaseapp.com",
+      projectId: "PROJECT_ID",
+      storageBucket: "PROJECT_ID.appspot.com",
+      messagingSenderId: "SENDER_ID",
+      appId: "APP_ID"
     };
 
-    // Initialize Firebase
     const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
     const auth = getAuth(app);
-    const db = getDatabase(app);
 
-    // Elemen DOM
-    const searchInput = document.getElementById("searchInput");
-    const searchResultsDiv = document.getElementById("searchResults");
+    let currentUserId;
 
-    let currentUserEmail = null;
+    // Fungsi untuk menampilkan daftar teman
+    async function loadFriends() {
+      const friendList = document.getElementById("friendList");
+      friendList.innerHTML = "";
 
-    // Mendapatkan email pengguna saat ini
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        currentUserEmail = user.email;
-      } else {
-        alert("Silakan login terlebih dahulu!");
-        window.location.href = "login.html"; // Ganti dengan halaman login
-      }
-    });
+      if (currentUserId) {
+        const userRef = doc(db, "users", currentUserId);
+        const userDoc = await getDoc(userRef);
 
-    // Fungsi pencarian pengguna berdasarkan input
-    async function searchUsers() {
-      const searchTerm = searchInput.value.trim().toLowerCase();
-      if (searchTerm) {
-        const usersRef = ref(db, 'users'); // Pastikan data pengguna ada di Firebase
-        try {
-          const snapshot = await get(usersRef);
-          if (snapshot.exists()) {
-            const users = snapshot.val();
-            const filteredUsers = Object.entries(users).filter(([key, user]) => {
-              return user.email.toLowerCase().includes(searchTerm) || user.displayName.toLowerCase().includes(searchTerm);
-            });
+        if (userDoc.exists()) {
+          const friends = userDoc.data().friends || {};
+          for (const friendId in friends) {
+            const friendRef = doc(db, "users", friendId);
+            const friendDoc = await getDoc(friendRef);
 
-            displaySearchResults(filteredUsers);
-          } else {
-            searchResultsDiv.innerHTML = "No users found.";
+            if (friendDoc.exists()) {
+              const friendData = friendDoc.data();
+              const li = document.createElement("li");
+              li.textContent = friendData.displayName || "Anonymous";
+              friendList.appendChild(li);
+            }
           }
-        } catch (error) {
-          console.error("Error fetching users:", error);
         }
       }
     }
 
-    // Fungsi untuk menampilkan hasil pencarian
-    function displaySearchResults(users) {
-      searchResultsDiv.innerHTML = "";
-      users.forEach(([key, user]) => {
-        const userItem = document.createElement("div");
-        userItem.classList.add("user-item");
-        userItem.innerHTML = `
-          <span>${user.displayName} (${user.email})</span>
-          <button onclick="startChat('${user.email}')">Chat</button>
-        `;
-        searchResultsDiv.appendChild(userItem);
-      });
+    // Fungsi untuk menambah teman
+    async function addFriend(friendIdentifier) {
+      if (!currentUserId) return;
+
+      // Cari pengguna berdasarkan email atau username
+      const userQuery = doc(db, "users", friendIdentifier);
+      const friendDoc = await getDoc(userQuery);
+
+      if (friendDoc.exists()) {
+        const friendId = friendDoc.id;
+
+        // Update daftar teman pengguna saat ini
+        const currentUserRef = doc(db, "users", currentUserId);
+        await updateDoc(currentUserRef, {
+          [`friends.${friendId}`]: true
+        });
+
+        // Update daftar teman pengguna yang ditambahkan
+        const friendRef = doc(db, "users", friendId);
+        await updateDoc(friendRef, {
+          [`friends.${currentUserId}`]: true
+        });
+
+        alert("Teman berhasil ditambahkan!");
+        loadFriends();
+      } else {
+        alert("Pengguna tidak ditemukan.");
+      }
     }
 
-    // Fungsi untuk memulai chat dengan pengguna yang dipilih
-    function startChat(userEmail) {
-      window.location.href = `chat.html?recipient=${userEmail}`;
-    }
+    // Event listener untuk tombol tambah teman
+    const addFriendButton = document.getElementById("addFriendButton");
+    const friendInput = document.getElementById("friendInput");
+
+    addFriendButton.addEventListener("click", () => {
+      const friendIdentifier = friendInput.value.trim();
+      if (friendIdentifier) {
+        addFriend(friendIdentifier);
+        friendInput.value = "";
+      }
+    });
+
+    // Cek status login dan set user ID
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUserId = user.uid;
+        loadFriends();
+      } else {
+        alert("Anda belum login!");
+      }
+    });
   </script>
 </body>
 </html>
