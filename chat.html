@@ -3,91 +3,95 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Live Chat with Other Users</title>
+  <title>Chat</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-      align-items: center;
-      min-height: 100vh;
-      background-color: #f4f4f9;
+      background: #f3f4f6;
       margin: 0;
+      padding: 20px;
     }
 
-    #messages {
-      width: 80%;
+    .chat-container {
       max-width: 600px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .chat-header {
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
       margin-bottom: 20px;
-      padding: 10px;
-      height: 60vh;
+    }
+
+    .messages {
+      max-height: 400px;
       overflow-y: auto;
+      margin-bottom: 20px;
       border: 1px solid #ddd;
-      background-color: #fff;
+      padding: 10px;
+      border-radius: 5px;
+      background: #f9f9f9;
     }
 
     .message {
-      margin: 10px 0;
-      padding: 8px;
-      background-color: #e0f7fa;
-      border-radius: 10px;
+      margin-bottom: 10px;
     }
 
-    .message .sender {
-      font-weight: bold;
-      margin-right: 5px;
+    .message.sender {
+      text-align: right;
+      color: blue;
     }
 
-    form {
+    .message.receiver {
+      text-align: left;
+      color: green;
+    }
+
+    .message-input {
       display: flex;
-      width: 80%;
-      max-width: 600px;
-      margin-bottom: 20px;
     }
 
-    input[type="text"] {
+    .message-input input {
       flex: 1;
       padding: 10px;
-      font-size: 16px;
-      border: 1px solid #ccc;
+      border: 1px solid #ddd;
       border-radius: 5px;
     }
 
-    button {
-      padding: 10px 15px;
-      background-color: #00796b;
+    .message-input button {
+      padding: 10px;
+      background: #007bff;
       color: white;
       border: none;
       border-radius: 5px;
-      margin-left: 10px;
       cursor: pointer;
+      margin-left: 5px;
     }
 
-    button:hover {
-      background-color: #004d40;
-    }
-
-    #username {
-      font-size: 18px;
-      margin-bottom: 10px;
+    .message-input button:hover {
+      background: #0056b3;
     }
   </style>
 </head>
 <body>
-  <h1>Chat with Other Users</h1>
-  <div id="username"></div> <!-- Menampilkan Nama Pengguna -->
-  <div id="messages"></div>
-  
-  <form id="chatForm">
-    <input type="text" id="messageInput" placeholder="Type a message...">
-    <button type="submit">Send</button>
-  </form>
+  <div class="chat-container">
+    <div class="chat-header" id="chatHeader">Chat</div>
+    <div class="messages" id="messages"></div>
+    <div class="message-input">
+      <input type="text" id="messageInput" placeholder="Ketik pesan...">
+      <button id="sendMessageButton">Kirim</button>
+    </div>
+  </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+    import { getFirestore, doc, getDoc, updateDoc, arrayUnion, onSnapshot } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
-    import { getDatabase, ref, push, onChildAdded, update } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
 
     // Firebase Configuration
     const firebaseConfig = {
@@ -99,73 +103,90 @@
       appId: "1:881496252840:web:dc88ca17028a6bf7093d9d"
     };
 
-    // Initialize Firebase
     const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
     const auth = getAuth(app);
-    const db = getDatabase(app);
 
-    // Elemen DOM
+    let currentUserId;
+    let friendId;
     const messagesDiv = document.getElementById("messages");
-    const chatForm = document.getElementById("chatForm");
-    const messageInput = document.getElementById("messageInput");
-    const usernameDiv = document.getElementById("username");
+    const chatHeader = document.getElementById("chatHeader");
 
-    let currentUserEmail = null;
-    let currentUsername = null;
-    let recipientEmail = "user2@example.com"; // Contoh email penerima chat, bisa diganti sesuai yang diinginkan
+    // Ambil friendId dari URL
+    const urlParams = new URLSearchParams(window.location.search);
+    friendId = urlParams.get("friendId");
 
-    // Mendapatkan email dan nama pengguna
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        currentUserEmail = user.email;
-        currentUsername = user.displayName || "User";
-        usernameDiv.innerHTML = `Welcome, ${currentUsername}`;
-      } else {
-        alert("Silakan login terlebih dahulu!");
-        window.location.href = "login.html"; // Ganti dengan halaman login
-      }
-    });
+    // Fungsi untuk memuat pesan secara real-time
+    async function loadMessages() {
+      if (!currentUserId || !friendId) return;
 
-    // Fungsi untuk menambahkan pesan ke tampilan
-    function addMessageToUI(sender, message) {
-      const messageDiv = document.createElement("div");
-      messageDiv.className = "message";
-      messageDiv.innerHTML = `
-        <span class="sender">${sender}:</span>
-        <p>${message}</p>
-      `;
-      messagesDiv.appendChild(messageDiv);
-      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+      const chatId = [currentUserId, friendId].sort().join("_");
+      const chatRef = doc(db, "chats", chatId);
+
+      onSnapshot(chatRef, (docSnap) => {
+        messagesDiv.innerHTML = ""; // Kosongkan pesan lama
+        if (docSnap.exists()) {
+          const messages = docSnap.data().messages || [];
+          messages.forEach((msg) => {
+            const div = document.createElement("div");
+            div.className = "message";
+            div.classList.add(msg.sender === currentUserId ? "sender" : "receiver");
+            div.textContent = msg.text;
+            messagesDiv.appendChild(div);
+          });
+          messagesDiv.scrollTop = messagesDiv.scrollHeight; // Scroll ke bawah
+        }
+      });
     }
 
-    // Mendengarkan pesan baru dari Firebase Realtime Database
-    const messagesRef = ref(db, `messages/${currentUserEmail}/${recipientEmail}`);
-    onChildAdded(messagesRef, (data) => {
-      const { sender, message } = data.val();
-      addMessageToUI(sender, message);
-    });
+    // Fungsi untuk mengirim pesan
+    async function sendMessage(message) {
+      if (!currentUserId || !friendId || !message.trim()) return;
 
-    // Mengirim pesan
-    chatForm.addEventListener("submit", (e) => {
-      e.preventDefault();
+      const chatId = [currentUserId, friendId].sort().join("_");
+      const chatRef = doc(db, "chats", chatId);
+      await updateDoc(chatRef, {
+        messages: arrayUnion({
+          sender: currentUserId,
+          text: message,
+          timestamp: Date.now(),
+        }),
+      });
+    }
+
+    // Event listener untuk tombol kirim
+    document.getElementById("sendMessageButton").addEventListener("click", () => {
+      const messageInput = document.getElementById("messageInput");
       const message = messageInput.value.trim();
-      if (message && currentUserEmail) {
-        // Menambahkan pesan baru ke Firebase untuk pengirim dan penerima
-        push(ref(db, `messages/${currentUserEmail}/${recipientEmail}`), {
-          sender: currentUsername,
-          message,
-          timestamp: Date.now()
-        });
-
-        push(ref(db, `messages/${recipientEmail}/${currentUserEmail}`), {
-          sender: currentUsername,
-          message,
-          timestamp: Date.now()
-        });
-
+      if (message) {
+        sendMessage(message);
         messageInput.value = "";
       }
     });
+
+    // Cek status login
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUserId = user.uid;
+        loadMessages();
+      } else {
+        alert("Anda belum login!");
+      }
+    });
+
+    // Tampilkan nama teman di header
+    async function loadFriendName() {
+      if (!friendId) return;
+
+      const friendRef = doc(db, "users", friendId);
+      const friendDoc = await getDoc(friendRef);
+
+      if (friendDoc.exists()) {
+        chatHeader.textContent = `Chat dengan ${friendDoc.data().displayName || "Anonymous"}`;
+      }
+    }
+
+    loadFriendName();
   </script>
 </body>
 </html>
