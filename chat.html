@@ -5,11 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chat Room</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f3f4f6;
+    * {
       margin: 0;
       padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f7fc;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -17,175 +21,143 @@
     }
 
     .chat-container {
-      width: 90%;
-      max-width: 600px;
-      background: #fff;
+      width: 100%;
+      max-width: 480px;
+      background: white;
       border-radius: 10px;
-      overflow: hidden;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
       display: flex;
       flex-direction: column;
+      height: 80vh;
     }
 
     .chat-header {
+      background: #4e73df;
+      color: white;
+      padding: 15px;
       display: flex;
       align-items: center;
-      padding: 15px;
-      background: #007bff;
-      color: white;
+      border-top-left-radius: 10px;
+      border-top-right-radius: 10px;
     }
 
     .chat-header img {
-      width: 40px;
-      height: 40px;
+      width: 45px;
+      height: 45px;
       border-radius: 50%;
-      margin-right: 10px;
+      margin-right: 15px;
     }
 
-    .chat-header h1 {
-      margin: 0;
+    .chat-header h2 {
       font-size: 18px;
     }
 
     .messages {
-      flex: 1;
+      flex-grow: 1;
       overflow-y: auto;
-      padding: 20px;
-      background: #f9f9f9;
-      display: flex;
-      flex-direction: column;
+      padding: 15px;
+      background-color: #fafafa;
+      border-bottom: 1px solid #ddd;
     }
 
-    .message-row {
+    .message {
       display: flex;
       margin-bottom: 10px;
-      position: relative;
-    }
-
-    .message-row.sender {
-      justify-content: flex-end;
-    }
-
-    .message-row.receiver {
-      justify-content: flex-start;
-    }
-
-    .bubble {
-      max-width: 70%;
       padding: 10px;
       border-radius: 10px;
-      position: relative;
-      font-size: 14px;
-      line-height: 1.5;
     }
 
-    .bubble.sender {
-      background: #007bff;
+    .sender {
+      background-color: #4e73df;
       color: white;
-      text-align: right;
+      align-self: flex-end;
+      margin-left: 50px;
     }
 
-    .bubble.sender::after {
-      content: '';
-      position: absolute;
-      right: -10px;
-      top: 10px;
-      border-width: 10px;
-      border-style: solid;
-      border-color: transparent transparent transparent #007bff;
+    .receiver {
+      background-color: #e1e1e1;
+      color: #333;
+      align-self: flex-start;
+      margin-right: 50px;
     }
 
-    .bubble.receiver {
-      background: #e0e0e0;
-      color: black;
+    .message-text {
+      max-width: 70%;
+      word-wrap: break-word;
+      font-size: 14px;
     }
 
-    .bubble.receiver::after {
-      content: '';
-      position: absolute;
-      left: -10px;
-      top: 10px;
-      border-width: 10px;
-      border-style: solid;
-      border-color: transparent #e0e0e0 transparent transparent;
-    }
-
-    .message-input {
+    .input-container {
       display: flex;
-      padding: 10px;
       border-top: 1px solid #ddd;
+      padding: 10px;
+      background-color: #fff;
     }
 
-    .message-input input {
-      flex: 1;
+    .input-container input {
+      flex-grow: 1;
       padding: 10px;
       border: 1px solid #ddd;
-      border-radius: 5px;
+      border-radius: 20px;
+      font-size: 14px;
     }
 
-    .message-input button {
+    .input-container button {
       padding: 10px;
-      background: #007bff;
+      margin-left: 10px;
+      background-color: #4e73df;
       color: white;
       border: none;
-      border-radius: 5px;
+      border-radius: 20px;
       cursor: pointer;
-      margin-left: 5px;
+      font-size: 14px;
     }
 
-    .message-input button:hover {
-      background: #0056b3;
+    .input-container button:hover {
+      background-color: #3551a1;
     }
 
     .delete-button {
-      position: absolute;
-      top: 5px;
-      right: 5px;
-      background: #ff3333;
+      background-color: #ff4d4d;
       color: white;
       border: none;
-      padding: 5px 10px;
-      border-radius: 5px;
+      border-radius: 20px;
+      padding: 10px;
       cursor: pointer;
-      font-size: 12px;
+      font-size: 14px;
+      display: none;
     }
 
     .delete-button:hover {
-      background: #cc0000;
+      background-color: #cc0000;
     }
 
-    .select-checkbox {
-      margin-right: 10px;
+    @media (max-width: 600px) {
+      .chat-container {
+        height: 100%;
+      }
     }
 
-    .delete-selected {
-      padding: 10px;
-      background: #ff3333;
-      color: white;
-      border: none;
-      cursor: pointer;
-      font-size: 14px;
-    }
-
-    .delete-selected:hover {
-      background: #cc0000;
-    }
   </style>
 </head>
 <body>
+
   <div class="chat-container">
-    <div class="chat-header" id="chatHeader">
-      <img src="https://via.placeholder.com/40" alt="Avatar" id="friendAvatar">
-      <h1 id="friendName">Loading...</h1>
+    <div class="chat-header">
+      <img src="https://via.placeholder.com/45" id="friendAvatar" alt="Avatar">
+      <h2 id="friendName">Loading...</h2>
     </div>
-    <div class="messages" id="messages"></div>
-    <div class="message-input">
-      <input type="text" id="messageInput" placeholder="Ketik pesan...">
+
+    <div class="messages" id="messages">
+      <!-- Pesan akan muncul di sini -->
+    </div>
+
+    <div class="input-container">
+      <input type="text" id="messageInput" placeholder="Tulis pesan...">
       <button id="sendMessageButton">Kirim</button>
     </div>
-    <div>
-      <button class="delete-selected" id="deleteSelectedButton" style="display: none;">Hapus Pesan Terpilih</button>
-    </div>
+
+    <button class="delete-button" id="deleteSelectedButton">Hapus Pesan Terpilih</button>
   </div>
 
   <script type="module">
@@ -193,7 +165,6 @@
     import { getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion, onSnapshot, deleteField } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
 
-    // Firebase Configuration
     const firebaseConfig = {
       apiKey: "AIzaSyA9lmHvPKxwcgU0UUAEzxIr5jJzQma_yEo",
       authDomain: "eqjawa-cihuy.firebaseapp.com",
@@ -210,18 +181,27 @@
     let currentUserId;
     let friendId;
     const messagesDiv = document.getElementById("messages");
-    const chatHeader = document.getElementById("chatHeader");
+    const chatHeader = document.querySelector(".chat-header");
     const friendNameElem = document.getElementById("friendName");
     const friendAvatarElem = document.getElementById("friendAvatar");
     const deleteSelectedButton = document.getElementById("deleteSelectedButton");
 
-    // Ambil friendId dari URL
     const urlParams = new URLSearchParams(window.location.search);
     friendId = urlParams.get("friendId");
 
     let selectedMessages = [];
 
-    // Fungsi untuk memuat pesan secara real-time
+    async function loadFriendData() {
+      if (!friendId) return;
+      const friendRef = doc(db, "users", friendId);
+      const friendSnap = await getDoc(friendRef);
+      if (friendSnap.exists()) {
+        const friendData = friendSnap.data();
+        friendNameElem.textContent = friendData.name || "Tanpa Nama";
+        friendAvatarElem.src = friendData.avatar || "https://via.placeholder.com/45";
+      }
+    }
+
     async function loadMessages() {
       if (!currentUserId || !friendId) return;
 
@@ -229,35 +209,26 @@
       const chatRef = doc(db, "chats", chatId);
 
       onSnapshot(chatRef, (docSnap) => {
-        messagesDiv.innerHTML = ""; // Kosongkan pesan lama
+        messagesDiv.innerHTML = ""; // Clear previous messages
         if (docSnap.exists()) {
           const messages = docSnap.data().messages || [];
           messages.forEach((msg, index) => {
-            const row = document.createElement("div");
-            row.className = "message-row";
-            row.classList.add(msg.sender === currentUserId ? "sender" : "receiver");
+            const messageDiv = document.createElement("div");
+            messageDiv.classList.add("message");
+            messageDiv.classList.add(msg.sender === currentUserId ? "sender" : "receiver");
 
-            const bubble = document.createElement("div");
-            bubble.className = "bubble";
-            bubble.classList.add(msg.sender === currentUserId ? "sender" : "receiver");
-            bubble.textContent = msg.text;
+            const messageText = document.createElement("div");
+            messageText.classList.add("message-text");
+            messageText.textContent = msg.text;
+            messageDiv.appendChild(messageText);
 
-            const checkbox = document.createElement("input");
-            checkbox.type = "checkbox";
-            checkbox.className = "select-checkbox";
-            checkbox.id = `msg-${index}`;
-            checkbox.onclick = () => toggleSelection(index);
-
-            row.appendChild(checkbox);
-            row.appendChild(bubble);
-            messagesDiv.appendChild(row);
+            messagesDiv.appendChild(messageDiv);
           });
-          messagesDiv.scrollTop = messagesDiv.scrollHeight; // Scroll ke bawah
         }
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
       });
     }
 
-    // Fungsi untuk mengirim pesan
     async function sendMessage(message) {
       if (!currentUserId || !friendId || !message.trim()) return;
 
@@ -278,7 +249,16 @@
       });
     }
 
-    // Event listener untuk tombol kirim
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUserId = user.uid;
+        loadFriendData();
+        loadMessages();
+      } else {
+        alert("Anda belum login!");
+      }
+    });
+
     document.getElementById("sendMessageButton").addEventListener("click", () => {
       const messageInput = document.getElementById("messageInput");
       const message = messageInput.value.trim();
@@ -288,47 +268,6 @@
       }
     });
 
-    onAuthStateChanged(auth, (user) => {
-  if (user) {
-    currentUserId = user.uid;
-    loadMessages();
-  } else {
-    alert("terdeteksi anda belum login!");
-  }
-});
-
-    // Fungsi untuk memilih pesan
-    function toggleSelection(index) {
-      if (selectedMessages.includes(index)) {
-        selectedMessages = selectedMessages.filter(i => i !== index);
-      } else {
-        selectedMessages.push(index);
-      }
-
-      deleteSelectedButton.style.display = selectedMessages.length > 0 ? "block" : "none";
-    }
-
-    // Fungsi untuk menghapus pesan terpilih
-    async function deleteSelectedMessages() {
-      if (!currentUserId || !friendId || selectedMessages.length === 0) return;
-
-      const chatId = [currentUserId, friendId].sort().join("_");
-      const chatRef = doc(db, "chats", chatId);
-
-      const chatSnap = await getDoc(chatRef);
-      if (chatSnap.exists()) {
-        const messages = chatSnap.data().messages || [];
-
-        selectedMessages.sort((a, b) => b - a).forEach(index => {
-          messages.splice(index, 1); // Hapus pesan berdasarkan index
-        });
-
-        await updateDoc(chatRef, { messages: messages });
-      }
-    }
-
-    // Event listener untuk tombol hapus pesan terpilih
-    deleteSelectedButton.addEventListener("click", deleteSelectedMessages);
   </script>
 </body>
 </html>
