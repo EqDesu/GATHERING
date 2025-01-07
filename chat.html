@@ -291,13 +291,11 @@
     onAuthStateChanged(auth, (user) => {
   if (user) {
     currentUserId = user.uid;
-    loadFriendData(); // Panggil fungsi ini untuk memuat data teman
     loadMessages();
   } else {
-    alert("Anda belum login!");
+    alert("terdeteksi anda belum login!");
   }
 });
-
 
     // Fungsi untuk memilih pesan
     function toggleSelection(index) {
