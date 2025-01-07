@@ -192,15 +192,22 @@
     let selectedMessages = [];
 
     async function loadFriendData() {
-      if (!friendId) return;
-      const friendRef = doc(db, "users", friendId);
-      const friendSnap = await getDoc(friendRef);
-      if (friendSnap.exists()) {
-        const friendData = friendSnap.data();
-        friendNameElem.textContent = friendData.name || "Tanpa Nama";
-        friendAvatarElem.src = friendData.avatar || "https://via.placeholder.com/45";
-      }
-    }
+  if (!friendId) return;
+
+  const friendRef = doc(db, "users", friendId);
+  const friendSnap = await getDoc(friendRef);
+
+  if (friendSnap.exists()) {
+    const friendData = friendSnap.data();
+    friendNameElem.textContent = friendData.displayName || "Tanpa Nama";
+    friendAvatarElem.src = friendData.photoURL || "https://via.placeholder.com/45";
+  } else {
+    console.error("Data teman tidak ditemukan untuk ID:", friendId);
+    friendNameElem.textContent = "Tanpa Nama";
+    friendAvatarElem.src = "https://via.placeholder.com/45";
+  }
+}
+
 
     async function loadMessages() {
       if (!currentUserId || !friendId) return;
