@@ -62,6 +62,7 @@
 
     .message {
       display: flex;
+      flex-direction: column;
       margin-bottom: 10px;
       padding: 10px;
       border-radius: 10px;
@@ -85,6 +86,13 @@
       max-width: 70%;
       word-wrap: break-word;
       font-size: 14px;
+    }
+
+    .message-time {
+      font-size: 10px;
+      color: #aaa;
+      text-align: right;
+      margin-top: 5px;
     }
 
     .input-container {
@@ -137,7 +145,6 @@
         height: 100%;
       }
     }
-
   </style>
 </head>
 <body>
@@ -162,7 +169,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-    import { getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion, onSnapshot, deleteField } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion, onSnapshot } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
 
     const firebaseConfig = {
@@ -181,33 +188,28 @@
     let currentUserId;
     let friendId;
     const messagesDiv = document.getElementById("messages");
-    const chatHeader = document.querySelector(".chat-header");
     const friendNameElem = document.getElementById("friendName");
     const friendAvatarElem = document.getElementById("friendAvatar");
-    const deleteSelectedButton = document.getElementById("deleteSelectedButton");
 
     const urlParams = new URLSearchParams(window.location.search);
     friendId = urlParams.get("friendId");
 
-    let selectedMessages = [];
-
     async function loadFriendData() {
-  if (!friendId) return;
+      if (!friendId) return;
 
-  const friendRef = doc(db, "users", friendId);
-  const friendSnap = await getDoc(friendRef);
+      const friendRef = doc(db, "users", friendId);
+      const friendSnap = await getDoc(friendRef);
 
-  if (friendSnap.exists()) {
-    const friendData = friendSnap.data();
-    friendNameElem.textContent = friendData.displayName || "Tanpa Nama";
-    friendAvatarElem.src = friendData.photoURL || "https://via.placeholder.com/45";
-  } else {
-    console.error("Data teman tidak ditemukan untuk ID:", friendId);
-    friendNameElem.textContent = "Tanpa Nama";
-    friendAvatarElem.src = "https://via.placeholder.com/45";
-  }
-}
-
+      if (friendSnap.exists()) {
+        const friendData = friendSnap.data();
+        friendNameElem.textContent = friendData.displayName || "Tanpa Nama";
+        friendAvatarElem.src = friendData.photoURL || "https://via.placeholder.com/45";
+      } else {
+        console.error("Data teman tidak ditemukan untuk ID:", friendId);
+        friendNameElem.textContent = "Tanpa Nama";
+        friendAvatarElem.src = "https://via.placeholder.com/45";
+      }
+    }
 
     async function loadMessages() {
       if (!currentUserId || !friendId) return;
@@ -219,7 +221,7 @@
         messagesDiv.innerHTML = ""; // Clear previous messages
         if (docSnap.exists()) {
           const messages = docSnap.data().messages || [];
-          messages.forEach((msg, index) => {
+          messages.forEach((msg) => {
             const messageDiv = document.createElement("div");
             messageDiv.classList.add("message");
             messageDiv.classList.add(msg.sender === currentUserId ? "sender" : "receiver");
@@ -229,6 +231,16 @@
             messageText.textContent = msg.text;
             messageDiv.appendChild(messageText);
 
+            const messageTime = document.createElement("div");
+            messageTime.classList.add("message-time");
+
+            // Format timestamp
+            const date = new Date(msg.timestamp);
+            const hours = date.getHours().toString().padStart(2, "0");
+            const minutes = date.getMinutes().toString().padStart(2, "0");
+            messageTime.textContent = `${hours}:${minutes}`;
+
+            messageDiv.appendChild(messageTime);
             messagesDiv.appendChild(messageDiv);
           });
         }
@@ -274,7 +286,6 @@
         messageInput.value = "";
       }
     });
-
   </script>
 </body>
 </html>
