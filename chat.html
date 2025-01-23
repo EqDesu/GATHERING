@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chat Room</title>
   <style>
-    * {
+    {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
@@ -234,7 +234,6 @@
             const messageTime = document.createElement("div");
             messageTime.classList.add("message-time");
 
-            // Format timestamp
             const date = new Date(msg.timestamp);
             const hours = date.getHours().toString().padStart(2, "0");
             const minutes = date.getMinutes().toString().padStart(2, "0");
