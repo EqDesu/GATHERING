@@ -3,60 +3,237 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Salam Dinamis</title>
+  <title>Friends List</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f0f4f8;
+      background: #f3f4f6;
       margin: 0;
       padding: 20px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-
-    .container {
-      text-align: center;
-      background: #fff;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
 
     h1 {
+      text-align: center;
       color: #333;
-      margin-bottom: 20px;
     }
 
-    p {
-      font-size: 18px;
-      color: #555;
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .friend-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .friend-list li {
+      display: flex;
+      align-items: center;
+      padding: 10px 15px;
+      margin: 5px 0;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+    }
+
+    .friend-list li:hover {
+      background: #f0f8ff;
+      transform: scale(1.02);
+    }
+
+    .friend-list img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      margin-right: 10px;
+    }
+
+    .add-friend {
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .add-friend input {
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+
+    .add-friend button {
+      padding: 10px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .add-friend button:hover {
+      background: #0056b3;
     }
   </style>
 </head>
 <body>
+  <h1>Friends</h1>
   <div class="container">
-    <h1 id="greeting">Halo!</h1>
-    <p id="message">Selamat datang di website kami.</p>
+    <ul class="friend-list" id="friendList">
+      <!-- Daftar teman akan dimuat di sini -->
+    </ul>
+
+    <div class="add-friend">
+      <h3>Tambah Teman</h3>
+      <input type="text" id="friendInput" placeholder="Masukkan email teman">
+      <button id="addFriendButton">Tambah Teman</button>
+    </div>
   </div>
 
-  <script>
-    // Fungsi untuk menentukan salam berdasarkan waktu
-    function getGreeting() {
-      const hour = new Date().getHours();
-      if (hour < 12) {
-        return "Selamat Pagi!";
-      } else if (hour < 18) {
-        return "Selamat Siang!";
-      } else {
-        return "Selamat Malam!";
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+    import {
+      getFirestore,
+      doc,
+      getDoc,
+      updateDoc,
+      query,
+      where,
+      collection,
+      getDocs
+    } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyA9lmHvPKxwcgU0UUAEzxIr5jJzQma_yEo",
+      authDomain: "eqjawa-cihuy.firebaseapp.com",
+      projectId: "eqjawa-cihuy",
+      storageBucket: "eqjawa-cihuy.appspot.com",
+      messagingSenderId: "881496252840",
+      appId: "1:881496252840:web:dc88ca17028a6bf7093d9d"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    let currentUserId;
+
+    // Fungsi untuk menampilkan daftar teman
+    async function loadFriends() {
+      const friendList = document.getElementById("friendList");
+      friendList.innerHTML = "";
+
+      if (currentUserId) {
+        const userRef = doc(db, "users", currentUserId);
+        const userDoc = await getDoc(userRef);
+
+        if (userDoc.exists()) {
+          const friends = userDoc.data().friends || {};
+          const friendPromises = Object.keys(friends).map(async (friendId) => {
+            const friendRef = doc(db, "users", friendId);
+            const friendDoc = await getDoc(friendRef);
+
+            if (friendDoc.exists()) {
+              const friendData = friendDoc.data();
+              const li = document.createElement("li");
+              li.addEventListener("click", () => {
+                window.location.href = `chat.html?friendId=${friendId}`;
+              });
+
+              const img = document.createElement("img");
+              img.src = friendData.photoURL || "default.png";
+              img.alt = friendData.displayName || "Friend";
+
+              const span = document.createElement("span");
+              span.textContent = friendData.displayName || "Anonymous";
+
+              li.appendChild(img);
+              li.appendChild(span);
+              return li;
+            }
+          });
+
+          const friendElements = await Promise.all(friendPromises);
+          friendElements.forEach((li) => {
+            if (li) friendList.appendChild(li);
+          });
+        }
       }
     }
 
-    // Tampilkan salam di halaman
-    const greetingElement = document.getElementById("greeting");
-    greetingElement.textContent = getGreeting();
+    // Fungsi untuk menambah teman
+    async function addFriend(friendIdentifier) {
+      if (!currentUserId) return;
+
+      try {
+        const userQuery = query(
+          collection(db, "users"),
+          where("email", "==", friendIdentifier)
+        );
+
+        const querySnapshot = await getDocs(userQuery);
+
+        if (!querySnapshot.empty) {
+          const friendDoc = querySnapshot.docs[0];
+          const friendId = friendDoc.id;
+
+          const currentUserRef = doc(db, "users", currentUserId);
+          const currentUserDoc = await getDoc(currentUserRef);
+          const existingFriends = currentUserDoc.data().friends || {};
+
+          if (existingFriends[friendId]) {
+            alert("Teman sudah ada di daftar!");
+            return;
+          }
+
+          await updateDoc(currentUserRef, {
+            [`friends.${friendId}`]: true
+          });
+
+          const friendRef = doc(db, "users", friendId);
+          await updateDoc(friendRef, {
+            [`friends.${currentUserId}`]: true
+          });
+
+          alert("Teman berhasil ditambahkan!");
+          loadFriends();
+        } else {
+          alert("Pengguna tidak ditemukan.");
+        }
+      } catch (error) {
+        console.error("Error adding friend:", error);
+        alert("Terjadi kesalahan. Coba lagi nanti.");
+      }
+    }
+
+    // Event listener untuk tombol tambah teman
+    const addFriendButton = document.getElementById("addFriendButton");
+    const friendInput = document.getElementById("friendInput");
+
+    addFriendButton.addEventListener("click", () => {
+      const friendIdentifier = friendInput.value.trim();
+      if (friendIdentifier) {
+        addFriend(friendIdentifier);
+        friendInput.value = "";
+      }
+    });
+
+    // Cek status login dan set user ID
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUserId = user.uid;
+        loadFriends();
+      } else {
+        alert("Anda belum login!");
+        window.location.href = "login.html"; // Redirect ke halaman login
+      }
+    });
   </script>
 </body>
 </html>
