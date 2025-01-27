@@ -109,6 +109,7 @@
     } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
 
+    // Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyA9lmHvPKxwcgU0UUAEzxIr5jJzQma_yEo",
       authDomain: "eqjawa-cihuy.firebaseapp.com",
@@ -118,56 +119,59 @@
       appId: "1:881496252840:web:dc88ca17028a6bf7093d9d"
     };
 
+    // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const auth = getAuth(app);
 
     let currentUserId;
 
-    // Fungsi untuk menampilkan daftar teman
+    // Load friends list
     async function loadFriends() {
       const friendList = document.getElementById("friendList");
       friendList.innerHTML = "";
 
       if (currentUserId) {
-        const userRef = doc(db, "users", currentUserId);
-        const userDoc = await getDoc(userRef);
+        try {
+          const userRef = doc(db, "users", currentUserId);
+          const userDoc = await getDoc(userRef);
 
-        if (userDoc.exists()) {
-          const friends = userDoc.data().friends || {};
-          const friendPromises = Object.keys(friends).map(async (friendId) => {
-            const friendRef = doc(db, "users", friendId);
-            const friendDoc = await getDoc(friendRef);
+          if (userDoc.exists()) {
+            const friends = userDoc.data().friends || {};
+            for (const friendId in friends) {
+              const friendRef = doc(db, "users", friendId);
+              const friendDoc = await getDoc(friendRef);
 
-            if (friendDoc.exists()) {
-              const friendData = friendDoc.data();
-              const li = document.createElement("li");
-              li.addEventListener("click", () => {
-                window.location.href = `chat.html?friendId=${friendId}`;
-              });
+              if (friendDoc.exists()) {
+                const friendData = friendDoc.data();
 
-              const img = document.createElement("img");
-              img.src = friendData.photoURL || "default.png";
-              img.alt = friendData.displayName || "Friend";
+                const li = document.createElement("li");
+                li.addEventListener("click", () => {
+                  window.location.href = `chat.html?friendId=${friendId}`;
+                });
 
-              const span = document.createElement("span");
-              span.textContent = friendData.displayName || "Anonymous";
+                const img = document.createElement("img");
+                img.src = friendData.photoURL || "default.png";
+                img.alt = friendData.displayName || "Friend";
 
-              li.appendChild(img);
-              li.appendChild(span);
-              return li;
+                const span = document.createElement("span");
+                span.textContent = friendData.displayName || "Anonymous";
+
+                li.appendChild(img);
+                li.appendChild(span);
+                friendList.appendChild(li);
+              }
             }
-          });
-
-          const friendElements = await Promise.all(friendPromises);
-          friendElements.forEach((li) => {
-            if (li) friendList.appendChild(li);
-          });
+          }
+        } catch (error) {
+          console.error("Error loading friends:", error);
         }
+      } else {
+        console.warn("currentUserId is null!");
       }
     }
 
-    // Fungsi untuk menambah teman
+    // Add friend
     async function addFriend(friendIdentifier) {
       if (!currentUserId) return;
 
@@ -176,7 +180,6 @@
           collection(db, "users"),
           where("email", "==", friendIdentifier)
         );
-
         const querySnapshot = await getDocs(userQuery);
 
         if (!querySnapshot.empty) {
@@ -184,14 +187,6 @@
           const friendId = friendDoc.id;
 
           const currentUserRef = doc(db, "users", currentUserId);
-          const currentUserDoc = await getDoc(currentUserRef);
-          const existingFriends = currentUserDoc.data().friends || {};
-
-          if (existingFriends[friendId]) {
-            alert("Teman sudah ada di daftar!");
-            return;
-          }
-
           await updateDoc(currentUserRef, {
             [`friends.${friendId}`]: true
           });
@@ -212,7 +207,7 @@
       }
     }
 
-    // Event listener untuk tombol tambah teman
+    // Add event listener to the "add friend" button
     const addFriendButton = document.getElementById("addFriendButton");
     const friendInput = document.getElementById("friendInput");
 
@@ -224,14 +219,13 @@
       }
     });
 
-    // Cek status login dan set user ID
+    // Check user authentication status
     onAuthStateChanged(auth, (user) => {
       if (user) {
         currentUserId = user.uid;
         loadFriends();
       } else {
         alert("Anda belum login!");
-        window.location.href = "login.html"; // Redirect ke halaman login
       }
     });
   </script>
