@@ -136,31 +136,34 @@
         if (userDoc.exists()) {
           const friends = userDoc.data().friends || {};
           for (const friendId in friends) {
-            const friendRef = doc(db, "users", friendId);
-            const friendDoc = await getDoc(friendRef);
+            // Pastikan nilai teman adalah true
+            if (friends[friendId] === true) {
+              const friendRef = doc(db, "users", friendId);
+              const friendDoc = await getDoc(friendRef);
 
-            if (friendDoc.exists()) {
-              const friendData = friendDoc.data();
-              const li = document.createElement("li");
-              li.style.cursor = "pointer";
+              if (friendDoc.exists()) {
+                const friendData = friendDoc.data();
+                const li = document.createElement("li");
+                li.style.cursor = "pointer";
 
-              // Navigasi ke halaman chat
-              li.addEventListener("click", () => {
-                window.location.href = `chat.html?friendId=${friendId}`;
-              });
+                // Navigasi ke halaman chat
+                li.addEventListener("click", () => {
+                  window.location.href = `chat.html?friendId=${friendId}`;
+                });
 
-              // Gambar profil
-              const img = document.createElement("img");
-              img.src = friendData.photoURL || "default.png";
-              img.alt = friendData.displayName || "Friend";
+                // Gambar profil
+                const img = document.createElement("img");
+                img.src = friendData.photoURL || "default.png";
+                img.alt = friendData.displayName || "Friend";
 
-              // Nama teman
-              const span = document.createElement("span");
-              span.textContent = friendData.displayName || "Anonymous";
+                // Nama teman
+                const span = document.createElement("span");
+                span.textContent = friendData.displayName || "Anonymous";
 
-              li.appendChild(img);
-              li.appendChild(span);
-              friendList.appendChild(li);
+                li.appendChild(img);
+                li.appendChild(span);
+                friendList.appendChild(li);
+              }
             }
           }
         }
@@ -171,38 +174,39 @@
     async function addFriend(friendIdentifier) {
       if (!currentUserId) return;
 
-      try {
-        // Cari user berdasarkan email
-        const userQuery = query(
-          collection(db, "users"),
-          where("email", "==", friendIdentifier)
-        );
-        const querySnapshot = await getDocs(userQuery);
+      const userQuery = query(
+        collection(db, "users"),
+        where("email", "==", friendIdentifier)
+      );
 
-        if (!querySnapshot.empty) {
-          const friendDoc = querySnapshot.docs[0];
-          const friendId = friendDoc.id;
+      const querySnapshot = await getDocs(userQuery);
 
-          // Update field friends pengguna saat ini
-          const currentUserRef = doc(db, "users", currentUserId);
-          await updateDoc(currentUserRef, {
-            [`friends.${friendId}`]: true
-          });
+      if (!querySnapshot.empty) {
+        const friendDoc = querySnapshot.docs[0];
+        const friendId = friendDoc.id;
 
-          // Update field friends teman
-          const friendRef = doc(db, "users", friendId);
-          await updateDoc(friendRef, {
-            [`friends.${currentUserId}`]: true
-          });
-
-          alert("Teman berhasil ditambahkan!");
-          loadFriends();
-        } else {
-          alert("Pengguna tidak ditemukan.");
+        const currentUserRef = doc(db, "users", currentUserId);
+        const currentUserDoc = await getDoc(currentUserRef);
+        if (currentUserDoc.exists() && currentUserDoc.data().friends[friendId]) {
+          alert("Teman sudah ada di daftar!");
+          return;
         }
-      } catch (error) {
-        console.error("Error saat menambah teman:", error.message);
-        alert("Terjadi kesalahan. Coba lagi nanti.");
+
+        // Menambah teman ke daftar teman pengguna
+        await updateDoc(currentUserRef, {
+          [`friends.${friendId}`]: true
+        });
+
+        // Menambah pengguna ke daftar teman teman
+        const friendRef = doc(db, "users", friendId);
+        await updateDoc(friendRef, {
+          [`friends.${currentUserId}`]: true
+        });
+
+        alert("Teman berhasil ditambahkan!");
+        loadFriends();
+      } else {
+        alert("Pengguna tidak ditemukan.");
       }
     }
 
