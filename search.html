@@ -26,48 +26,34 @@
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
 
-    .friends-list {
+    .friend-list {
       list-style: none;
       padding: 0;
     }
 
-    .friends-list li {
+    .friend-list li {
       display: flex;
-      align-items: center;
+      justify-content: space-between;
       padding: 10px 15px;
       margin: 5px 0;
       border: 1px solid #ddd;
       border-radius: 5px;
-      cursor: pointer;
-      transition: all 0.2s ease-in-out;
     }
 
-    .friends-list li:hover {
-      background: #f0f8ff;
-      transform: scale(1.02);
-    }
-
-    .friends-list img {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      margin-right: 10px;
-    }
-
-    .add-friends {
+    .add-friend {
       margin-top: 20px;
       display: flex;
       flex-direction: column;
     }
 
-    .add-friends input {
+    .add-friend input {
       padding: 10px;
       margin-bottom: 10px;
       border: 1px solid #ddd;
       border-radius: 5px;
     }
 
-    .add-friends button {
+    .add-friend button {
       padding: 10px;
       background: #007bff;
       color: white;
@@ -76,7 +62,7 @@
       cursor: pointer;
     }
 
-    .add-friends button:hover {
+    .add-friend button:hover {
       background: #0056b3;
     }
   </style>
@@ -84,14 +70,14 @@
 <body>
   <h1>Friends</h1>
   <div class="container">
-    <ul class="friends-list" id="friendsList">
+    <ul class="friend-list" id="friendList">
       <!-- Daftar teman akan dimuat di sini -->
     </ul>
 
-    <div class="add-friends">
+    <div class="add-friend">
       <h3>Tambah Teman</h3>
-      <input type="text" id="friendsInput" placeholder="Masukkan email teman">
-      <button id="addFriendsButton">Tambah Teman</button>
+      <input type="text" id="friendInput" placeholder="Masukkan email teman">
+      <button id="addFriendButton">Tambah Teman</button>
     </div>
   </div>
 
@@ -109,14 +95,15 @@
     } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyA9lmHvPKxwcgU0UUAEzxIr5jJzQma_yEo",
-      authDomain: "eqjawa-cihuy.firebaseapp.com",
-      projectId: "eqjawa-cihuy",
-      storageBucket: "eqjawa-cihuy.appspot.com",
-      messagingSenderId: "881496252840",
-      appId: "1:881496252840:web:dc88ca17028a6bf7093d9d"
-    };
+    // Firebase Configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyA9lmHvPKxwcgU0UUAEzxIr5jJzQma_yEo",
+  authDomain: "eqjawa-cihuy.firebaseapp.com",
+  projectId: "eqjawa-cihuy",
+  storageBucket: "eqjawa-cihuy.appspot.com",
+  messagingSenderId: "881496252840",
+  appId: "1:881496252840:web:dc88ca17028a6bf7093d9d"
+};
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
@@ -126,8 +113,8 @@
 
     // Fungsi untuk menampilkan daftar teman
     async function loadFriends() {
-      const friendsList = document.getElementById("friendsList");
-      friendsList.innerHTML = "";
+      const friendList = document.getElementById("friendList");
+      friendList.innerHTML = "";
 
       if (currentUserId) {
         const userRef = doc(db, "users", currentUserId);
@@ -135,35 +122,15 @@
 
         if (userDoc.exists()) {
           const friends = userDoc.data().friends || {};
-          for (const friendsId in friends) {
-            // Pastikan nilai teman adalah true
-            if (friends[friendsId] === true) {
-              const friendsRef = doc(db, "users", friendsId);
-              const friendsDoc = await getDoc(friendsRef);
+          for (const friendId in friends) {
+            const friendRef = doc(db, "users", friendId);
+            const friendDoc = await getDoc(friendRef);
 
-              if (friendsDoc.exists()) {
-                const friendsData = friendsDoc.data();
-                const li = document.createElement("li");
-                li.style.cursor = "pointer";
-
-                // Navigasi ke halaman chat
-                li.addEventListener("click", () => {
-                  window.location.href = `chat.html?friendsId=${friendsId}`;
-                });
-
-                // Gambar profil
-                const img = document.createElement("img");
-                img.src = friendsData.photoURL || "default.png";
-                img.alt = friendsData.displayName || "Friends";
-
-                // Nama teman
-                const span = document.createElement("span");
-                span.textContent = friendsData.displayName || "Anonymous";
-
-                li.appendChild(img);
-                li.appendChild(span);
-                friendsList.appendChild(li);
-              }
+            if (friendDoc.exists()) {
+              const friendData = friendDoc.data();
+              const li = document.createElement("li");
+              li.textContent = friendData.displayName || "Anonymous";
+              friendList.appendChild(li);
             }
           }
         }
@@ -171,35 +138,37 @@
     }
 
     // Fungsi untuk menambah teman
-    async function addFriends(friendsIdentifier) {
+    async function addFriend(friendIdentifier) {
       if (!currentUserId) return;
 
+      // Cari pengguna berdasarkan email
       const userQuery = query(
         collection(db, "users"),
-        where("email", "==", friendsIdentifier)
+        where("email", "==", friendIdentifier)
       );
 
       const querySnapshot = await getDocs(userQuery);
 
       if (!querySnapshot.empty) {
-        const friendsDoc = querySnapshot.docs[0];
-        const friendsId = friendsDoc.id;
+        const friendDoc = querySnapshot.docs[0]; // Ambil dokumen pertama yang cocok
+        const friendId = friendDoc.id;
 
+        // Cek apakah teman sudah ada
         const currentUserRef = doc(db, "users", currentUserId);
         const currentUserDoc = await getDoc(currentUserRef);
-        if (currentUserDoc.exists() && currentUserDoc.data().friends[friendsId]) {
+        if (currentUserDoc.exists() && currentUserDoc.data().friends[friendId]) {
           alert("Teman sudah ada di daftar!");
           return;
         }
 
-        // Menambah teman ke daftar teman pengguna
+        // Update daftar teman pengguna saat ini
         await updateDoc(currentUserRef, {
-          [`friends.${friendsId}`]: true
+          [`friends.${friendId}`]: true
         });
 
-        // Menambah pengguna ke daftar teman teman
-        const friendsRef = doc(db, "users", friendsId);
-        await updateDoc(friendsRef, {
+        // Update daftar teman pengguna yang ditambahkan
+        const friendRef = doc(db, "users", friendId);
+        await updateDoc(friendRef, {
           [`friends.${currentUserId}`]: true
         });
 
@@ -211,14 +180,14 @@
     }
 
     // Event listener untuk tombol tambah teman
-    const addFriendsButton = document.getElementById("addFriendsButton");
-    const friendsInput = document.getElementById("friendsInput");
+    const addFriendButton = document.getElementById("addFriendButton");
+    const friendInput = document.getElementById("friendInput");
 
-    addFriendsButton.addEventListener("click", () => {
-      const friendsIdentifier = friendsInput.value.trim();
-      if (friendsIdentifier) {
-        addFriends(friendsIdentifier);
-        friendsInput.value = "";
+    addFriendButton.addEventListener("click", () => {
+      const friendIdentifier = friendInput.value.trim();
+      if (friendIdentifier) {
+        addFriend(friendIdentifier);
+        friendInput.value = "";
       }
     });
 
