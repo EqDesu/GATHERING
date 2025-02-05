@@ -26,12 +26,12 @@
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
 
-    .friend-list {
+    .friends-list {
       list-style: none;
       padding: 0;
     }
 
-    .friend-list li {
+    .friends-list li {
       display: flex;
       align-items: center;
       padding: 10px 15px;
@@ -42,32 +42,32 @@
       transition: all 0.2s ease-in-out;
     }
 
-    .friend-list li:hover {
+    .friends-list li:hover {
       background: #f0f8ff;
       transform: scale(1.02);
     }
 
-    .friend-list img {
+    .friends-list img {
       width: 40px;
       height: 40px;
       border-radius: 50%;
       margin-right: 10px;
     }
 
-    .add-friend {
+    .add-friends {
       margin-top: 20px;
       display: flex;
       flex-direction: column;
     }
 
-    .add-friend input {
+    .add-friends input {
       padding: 10px;
       margin-bottom: 10px;
       border: 1px solid #ddd;
       border-radius: 5px;
     }
 
-    .add-friend button {
+    .add-friends button {
       padding: 10px;
       background: #007bff;
       color: white;
@@ -76,7 +76,7 @@
       cursor: pointer;
     }
 
-    .add-friend button:hover {
+    .add-friends button:hover {
       background: #0056b3;
     }
   </style>
@@ -84,14 +84,14 @@
 <body>
   <h1>Friends</h1>
   <div class="container">
-    <ul class="friend-list" id="friendList">
+    <ul class="friends-list" id="friendsList">
       <!-- Daftar teman akan dimuat di sini -->
     </ul>
 
-    <div class="add-friend">
+    <div class="add-friends">
       <h3>Tambah Teman</h3>
-      <input type="text" id="friendInput" placeholder="Masukkan email teman">
-      <button id="addFriendButton">Tambah Teman</button>
+      <input type="text" id="friendsInput" placeholder="Masukkan email teman">
+      <button id="addFriendsButton">Tambah Teman</button>
     </div>
   </div>
 
@@ -126,8 +126,8 @@
 
     // Fungsi untuk menampilkan daftar teman
     async function loadFriends() {
-      const friendList = document.getElementById("friendList");
-      friendList.innerHTML = "";
+      const friendsList = document.getElementById("friendsList");
+      friendsList.innerHTML = "";
 
       if (currentUserId) {
         const userRef = doc(db, "users", currentUserId);
@@ -135,34 +135,34 @@
 
         if (userDoc.exists()) {
           const friends = userDoc.data().friends || {};
-          for (const friendId in friends) {
+          for (const friendsId in friends) {
             // Pastikan nilai teman adalah true
-            if (friends[friendId] === true) {
-              const friendRef = doc(db, "users", friendId);
-              const friendDoc = await getDoc(friendRef);
+            if (friends[friendsId] === true) {
+              const friendsRef = doc(db, "users", friendsId);
+              const friendsDoc = await getDoc(friendsRef);
 
-              if (friendDoc.exists()) {
-                const friendData = friendDoc.data();
+              if (friendsDoc.exists()) {
+                const friendsData = friendsDoc.data();
                 const li = document.createElement("li");
                 li.style.cursor = "pointer";
 
                 // Navigasi ke halaman chat
                 li.addEventListener("click", () => {
-                  window.location.href = `chat.html?friendId=${friendId}`;
+                  window.location.href = `chat.html?friendsId=${friendsId}`;
                 });
 
                 // Gambar profil
                 const img = document.createElement("img");
-                img.src = friendData.photoURL || "default.png";
-                img.alt = friendData.displayName || "Friend";
+                img.src = friendsData.photoURL || "default.png";
+                img.alt = friendsData.displayName || "Friends";
 
                 // Nama teman
                 const span = document.createElement("span");
-                span.textContent = friendData.displayName || "Anonymous";
+                span.textContent = friendsData.displayName || "Anonymous";
 
                 li.appendChild(img);
                 li.appendChild(span);
-                friendList.appendChild(li);
+                friendsList.appendChild(li);
               }
             }
           }
@@ -171,35 +171,35 @@
     }
 
     // Fungsi untuk menambah teman
-    async function addFriend(friendIdentifier) {
+    async function addFriends(friendsIdentifier) {
       if (!currentUserId) return;
 
       const userQuery = query(
         collection(db, "users"),
-        where("email", "==", friendIdentifier)
+        where("email", "==", friendsIdentifier)
       );
 
       const querySnapshot = await getDocs(userQuery);
 
       if (!querySnapshot.empty) {
-        const friendDoc = querySnapshot.docs[0];
-        const friendId = friendDoc.id;
+        const friendsDoc = querySnapshot.docs[0];
+        const friendsId = friendsDoc.id;
 
         const currentUserRef = doc(db, "users", currentUserId);
         const currentUserDoc = await getDoc(currentUserRef);
-        if (currentUserDoc.exists() && currentUserDoc.data().friends[friendId]) {
+        if (currentUserDoc.exists() && currentUserDoc.data().friends[friendsId]) {
           alert("Teman sudah ada di daftar!");
           return;
         }
 
         // Menambah teman ke daftar teman pengguna
         await updateDoc(currentUserRef, {
-          [`friends.${friendId}`]: true
+          [`friends.${friendsId}`]: true
         });
 
         // Menambah pengguna ke daftar teman teman
-        const friendRef = doc(db, "users", friendId);
-        await updateDoc(friendRef, {
+        const friendsRef = doc(db, "users", friendsId);
+        await updateDoc(friendsRef, {
           [`friends.${currentUserId}`]: true
         });
 
@@ -211,14 +211,14 @@
     }
 
     // Event listener untuk tombol tambah teman
-    const addFriendButton = document.getElementById("addFriendButton");
-    const friendInput = document.getElementById("friendInput");
+    const addFriendsButton = document.getElementById("addFriendsButton");
+    const friendsInput = document.getElementById("friendsInput");
 
-    addFriendButton.addEventListener("click", () => {
-      const friendIdentifier = friendInput.value.trim();
-      if (friendIdentifier) {
-        addFriend(friendIdentifier);
-        friendInput.value = "";
+    addFriendsButton.addEventListener("click", () => {
+      const friendsIdentifier = friendsInput.value.trim();
+      if (friendsIdentifier) {
+        addFriends(friendsIdentifier);
+        friendsInput.value = "";
       }
     });
 
