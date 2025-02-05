@@ -33,11 +33,25 @@
 
     .friend-list li {
       display: flex;
-      justify-content: space-between;
+      align-items: center;
       padding: 10px 15px;
       margin: 5px 0;
       border: 1px solid #ddd;
       border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+    }
+
+    .friend-list li:hover {
+      background: #f0f8ff;
+      transform: scale(1.02);
+    }
+
+    .friend-list img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      margin-right: 10px;
     }
 
     .add-friend {
@@ -95,15 +109,14 @@
     } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
 
-    // Firebase Configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyA9lmHvPKxwcgU0UUAEzxIr5jJzQma_yEo",
-  authDomain: "eqjawa-cihuy.firebaseapp.com",
-  projectId: "eqjawa-cihuy",
-  storageBucket: "eqjawa-cihuy.appspot.com",
-  messagingSenderId: "881496252840",
-  appId: "1:881496252840:web:dc88ca17028a6bf7093d9d"
-};
+    const firebaseConfig = {
+      apiKey: "AIzaSyA9lmHvPKxwcgU0UUAEzxIr5jJzQma_yEo",
+      authDomain: "eqjawa-cihuy.firebaseapp.com",
+      projectId: "eqjawa-cihuy",
+      storageBucket: "eqjawa-cihuy.appspot.com",
+      messagingSenderId: "881496252840",
+      appId: "1:881496252840:web:dc88ca17028a6bf7093d9d"
+    };
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
@@ -129,7 +142,24 @@ const firebaseConfig = {
             if (friendDoc.exists()) {
               const friendData = friendDoc.data();
               const li = document.createElement("li");
-              li.textContent = friendData.displayName || "Anonymous";
+              li.style.cursor = "pointer";
+
+              // Navigasi ke halaman chat
+              li.addEventListener("click", () => {
+                window.location.href = `chat.html?friendId=${friendId}`;
+              });
+
+              // Gambar profil
+              const img = document.createElement("img");
+              img.src = friendData.photoURL || "default.png";
+              img.alt = friendData.displayName || "Friend";
+
+              // Nama teman
+              const span = document.createElement("span");
+              span.textContent = friendData.displayName || "Anonymous";
+
+              li.appendChild(img);
+              li.appendChild(span);
               friendList.appendChild(li);
             }
           }
@@ -141,7 +171,6 @@ const firebaseConfig = {
     async function addFriend(friendIdentifier) {
       if (!currentUserId) return;
 
-      // Cari pengguna berdasarkan email
       const userQuery = query(
         collection(db, "users"),
         where("email", "==", friendIdentifier)
@@ -150,10 +179,9 @@ const firebaseConfig = {
       const querySnapshot = await getDocs(userQuery);
 
       if (!querySnapshot.empty) {
-        const friendDoc = querySnapshot.docs[0]; // Ambil dokumen pertama yang cocok
+        const friendDoc = querySnapshot.docs[0];
         const friendId = friendDoc.id;
 
-        // Cek apakah teman sudah ada
         const currentUserRef = doc(db, "users", currentUserId);
         const currentUserDoc = await getDoc(currentUserRef);
         if (currentUserDoc.exists() && currentUserDoc.data().friends[friendId]) {
@@ -161,12 +189,10 @@ const firebaseConfig = {
           return;
         }
 
-        // Update daftar teman pengguna saat ini
         await updateDoc(currentUserRef, {
           [`friends.${friendId}`]: true
         });
 
-        // Update daftar teman pengguna yang ditambahkan
         const friendRef = doc(db, "users", friendId);
         await updateDoc(friendRef, {
           [`friends.${currentUserId}`]: true
